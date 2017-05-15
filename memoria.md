@@ -19,7 +19,6 @@ abstract:
 
 <!--
 Cosas a tener en cuenta:
-- Entre apartados o entre secciones solo puede mediar, como mucho, una línea en blanco
 - Las figuras deben ir referenciadas. Las imágenes que sean estrechas deben ir a un lado.
 - Las referencias bibliográficas irán numeradas y referenciadas: libros, cosas de fabricantes, revisiones de profesionales. 
 - Hay que incluir transparencias.pdf con 8-12 transparencias y cuestionario.ods con 4-6 preguntas tipo test y soluciones relacionadas con el tema.
@@ -28,13 +27,25 @@ Cosas a tener en cuenta:
 
 # Historia del arranque
 
+<!--Por qué un gestor de arranque?-->
+Los primeros ordenadores como el ENIAC (1946) no necesitaban un sistema de arranque: tras dar corriente a los distintos dispositivos y limpiar la memoria eran capaces de realizar cualquier operación[@mccartney1999eniac]. Los programas eran configurados manualmente y no se guardaban en memoria por lo que el sistema sólo contaba con una forma de reiniciar la memoria de datos[@goldstine1946report pp.31].
 
-## Por qué una BIOS?
-## La primera BIOS
+Con la llegada de los primeros ordenadores comerciales (orientados al cálculo numérico en grandes empresas y agencias gubernamentales) surgió la necesidad de un sistema para cargar el programa inicial de memoria. Por ejemplo los ordenadores de IBM  como el IBM 701 (1952) contaban con un botón para la carga inicial de un programa[@ibm701 pp.12 (1273)], como se describe en el manual de IBM 7030 (1962) [@ibm7030 pp.125-127]:
+
+> El canal responsable de la interrupción lee un número de palabras específico de una zona de almacenamiento central. [...] El programa inicial [...] debe empezar con una palabra de control que especifica el número de palabras al leer y la dirección de memoria donde se halla la primera de ellas. [...] Cuando el programa ha sido leído el ordenador empieza automáticamente la ejecución del nuevo programa.
+
+En el caso de los microcomputadores orientados al uso doméstico como el Altair 8800b (1975) la memoria debía escribirse manualmente utilizando unos interruptores de la parte delantera en un proceso difícil y largo[@freiberger2000fire].
+
+![Imagen de anuncio de Altair8800b. Los interruptores de la parte delantera permitían escribir cada palabra en la memoria interna indicando su estado bit a bit. De [Popular Electronics, 1975](http://www.swtpc.com/mholley/PopularElectronics/Jan1975/PE_Jan1975.htm) ](imgs/altair8800b.png) 
+
+
+## El primer gestor de arranque
+
+El término **BIOS** apareció por primera vez en el sistema operativo CP/M diseñado por Gary Kildall en 1975 para designar la capa software que facilitaba la abstracción entre el *hardware* y el sistema operativo[@garykildall]. Este sistema podía ejecutarse sobre el procesador Intel 8080 y soportaba únicamente 64 KB de memoria. El sistema operativo de Microsoft MS-DOS expandió CP/M para añadir nuevas funcionalidades conservando la parte análoga a la BIOS[@abraham2013operating cap. 20, pp.901].
 
 # BIOS
 
-BIOS (del inglés *Basic Input/Ouput System*) es el *firmware* de arranque de los PCs de IBM y de la mayor parte de PCs antes del establecimiento de UEFI. Es el componente software de más bajo nivel de un ordenador. En términos generales consiste en una rutina que prueba los componentes del sistema y carga el sistema operativo y los *drivers* necesarios para su uso [@phoenix1989system p. 1 (30)]. Inicialmente se incorporaba en los disquetes que traían el sistema operativo pero posteriormente se añadió a la memoria ROM de la placa base. Estaba diseñado para microprocesadores basados en la arquitectura Intel 80x86.
+BIOS (del inglés *Basic Input/Ouput System*) es el *firmware* de arranque de los PCs de IBM y de la mayor parte de PCs antes del establecimiento de UEFI. Es el **componente software de más bajo nivel** de un ordenador. En términos generales consiste en una rutina que prueba los componentes del sistema y carga el sistema operativo y los *drivers* necesarios para su uso [@phoenix1989system p. 1 (30)]. Inicialmente se incorporaba en los disquetes que traían el sistema operativo pero posteriormente se añadió a la memoria ROM de la placa base. Estaba diseñado para microprocesadores basados en la arquitectura Intel 80x86.
 
 La BIOS servía además como una **capa de abstracción** entre el *hardware* y el sistema operativo, permitiendo modificar el hardware de manera independiente. Este era el caso de PC-DOS y MS-DOS, los sistemas operativos que predominaban en el mercado a finales de los años 80 [@phoenix1989system p. 2 (31)].
 
