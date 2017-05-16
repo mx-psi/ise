@@ -42,6 +42,8 @@ En el caso de los microcomputadores orientados al uso doméstico como el Altair 
 <!-- El primer gestor de arranque-->
 La posterior aparición de los sistemas operativos provocó la necesidad de crear un gestor de arranque que cargara de forma autónoma los datos necesarios para la inicialización, el primero de ellos llamado BIOS. El término **BIOS** apareció por primera vez en el sistema operativo CP/M diseñado por Gary Kildall en 1975 para designar la capa software que facilitaba la abstracción entre el *hardware* y el sistema operativo[@garykildall]. Este sistema podía ejecutarse sobre el procesador Intel 8080 y soportaba únicamente 64 KB de memoria. El sistema operativo de Microsoft MS-DOS expandió CP/M para añadir nuevas funcionalidades conservando la parte análoga a la BIOS[@abraham2013operating cap. 20, pp.901].
 
+<!--IBM PC Compatible y hablar de clones y de cómo llegó a ser importante BIOS-->
+
 ## La memoria ROM
 
 La memoria ROM (del inglés *Read-Only Memory*) permitió el establecimiento del código inicial del gestor de arranque en una localización fija que el procesador podía leer al inicio. Es un tipo de memoria **no volátil**: su contenido no se borra cuando el sistema no tiene energía (como ocurre en la memoria RAM) y su modificación no es posible durante la ejecución y es un proceso difícil[@william2006computer Capítulo 5].
@@ -54,6 +56,9 @@ La modificación del gestor de arranque debía hacerse modificando esta memoria 
 
 Utilizando este tipo de tecnologías podían reprogramarse los gestores de arranque que luego eran leídos por el procesador. Este modelo es también el utilizado en la actualidad para los ordenadores personales [@guide2011intel sección 9.1.4]: los procesadores Intel x86 toman la primera instrucción de la dirección física `FFFFFFF0H` donde debe estar localizada la memoria (EP)ROM, y también el utilizado por muchos sistemas embebidos.
 
+## La actualidad
+
+<!--TODO?-->
 
 # BIOS
 
@@ -63,6 +68,9 @@ La BIOS servía además como una **capa de abstracción** entre el *hardware* y 
 
 El funcionamiento general de la BIOS se basa en la interacción con las interrupciones *hardware* que proveen los procesadores Intel.
 
+## Interrupciones
+
+Una interrupción es una señal del procesador que indica un evento que debe ser atendido inmediatamente. La CPU entonces interrumpe su ejecución y transfiere la ejecución a una localización fija[@abraham2013operating Sección 1.2.1]. Las interrupciones pueden provenir del procesador del hardware, del software o del usuario. En los sistemas con BIOS una serie de interrupciones estaban reservadas para esta[@phoenix1989system pp. 35-36].
 
 ## El proceso de arranque en la BIOS
 ### POST
