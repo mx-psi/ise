@@ -44,16 +44,15 @@ La posterior aparición de los sistemas operativos provocó la necesidad de crea
 
 ## La memoria ROM
 
-La memoria ROM (del inglés *Read-Only Memory*) permitió el establecimiento del código inicial del gestor de arranque en una localización fija que el procesador podía leer al inicio. Es un tipo de memoria **no volátil**: su contenido no se borra cuando se reinicia el sistema (como ocurre en la memoria RAM) y su modificación no es posible durante la ejecución y es un proceso difícil[@william2006computer].
+La memoria ROM (del inglés *Read-Only Memory*) permitió el establecimiento del código inicial del gestor de arranque en una localización fija que el procesador podía leer al inicio. Es un tipo de memoria **no volátil**: su contenido no se borra cuando el sistema no tiene energía (como ocurre en la memoria RAM) y su modificación no es posible durante la ejecución y es un proceso difícil[@william2006computer Capítulo 5].
 
-El arranque fue 
+La modificación del gestor de arranque debía hacerse modificando esta memoria cuando era posible, proceso que variaba según el tipo de memoria[@william2006computer Capítulo 5, Types of ROM]:
 
-<!-- TODO:
-- Cómo se podían reprogramar
-- Tipo de tecnología EEPROM
--->
+- **PROM**: ROM programable eléctricamente lo que permite la modificación no industrial
+- **EPROM**: ROM borrable mediante exposición a luz ultravioleta. Puede ser modificada en múltiples ocasiones pero el proceso puede durar hasta 20 minutos
+- **EEPROM**: ROM borrable elécricamente. Este tipo de memoria puede ser actualizada *in situ* pero el proceso tarda varios órdenes de magnitud más que la lectura (del orden de microsegundos)
 
-Este modelo es también el utilizado en la actualidad para los ordenadores personales [@guide2011intel sección 9.1.4]: los procesadores Intel x86 toman la primera instrucción de la dirección física `FFFFFFF0H` donde debe estar localizada la memoria (EP)ROM, y también el utilizado por muchos sistemas embebidos.
+Utilizando este tipo de tecnologías podían reprogramarse los gestores de arranque que luego eran leídos por el procesador. Este modelo es también el utilizado en la actualidad para los ordenadores personales [@guide2011intel sección 9.1.4]: los procesadores Intel x86 toman la primera instrucción de la dirección física `FFFFFFF0H` donde debe estar localizada la memoria (EP)ROM, y también el utilizado por muchos sistemas embebidos.
 
 
 # BIOS
