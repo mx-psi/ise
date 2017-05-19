@@ -55,7 +55,7 @@ La modificación del gestor de arranque debía hacerse modificando esta memoria 
 - **EPROM**: ROM borrable mediante exposición a luz ultravioleta. Puede ser modificada en múltiples ocasiones pero el proceso puede durar hasta 20 minutos
 - **EEPROM**: ROM borrable elécricamente. Este tipo de memoria puede ser actualizada *in situ* pero el proceso tarda varios órdenes de magnitud más que la lectura (del orden de microsegundos)
 
-Utilizando este tipo de tecnologías podían reprogramarse los gestores de arranque que luego eran leídos por el procesador. Este modelo es también el utilizado en la actualidad para los ordenadores personales [@guide2011intel sección 9.1.4]: los procesadores Intel x86 toman la primera instrucción de la dirección física `FFFFFFF0H` donde debe estar localizada la memoria (EP)ROM. También es el modelo utilizado por muchos sistemas embebidos.
+Utilizando este tipo de tecnologías podían reprogramarse los gestores de arranque que luego eran leídos por el procesador. Este modelo es también el utilizado en la actualidad para los ordenadores personales [@guide2011intel sección 9.1.4]: los procesadores Intel x86 toman la primera instrucción de la dirección física `FFFFFFF0H` donde debe estar localizada la memoria (EP)ROM. También es el modelo utilizado por muchos sistemas embebidos[@abraham2013operating].
 
 ## Los ordenadores de IBM
 
@@ -80,15 +80,23 @@ El funcionamiento general de la BIOS se basa en la interacción con las interrup
 
 Una interrupción es una señal del procesador que indica un evento que debe ser atendido inmediatamente. La CPU entonces interrumpe su ejecución y transfiere la ejecución a una localización fija[@abraham2013operating Sección 1.2.1]. Las interrupciones pueden provenir del procesador del hardware, del software o del usuario. En los sistemas con BIOS una serie de interrupciones estaban reservadas para esta[@phoenix1989system pp. 35-36].
 
-## El proceso de arranque en la BIOS
+## El proceso de arranque
 
-El proceso de arranque en ordenadores compatibles con IBM se basa en los siguientes pasos:
+Aunque existen diferencias en función de la implementación o el tipo de BIOS el proceso de arranque en ordenadores compatibles con IBM sigue en términos generales los siguientes pasos[@abraham2013operating Sección 2.10]:
 
-- En primer lugar el procesador comienza inicializando la mayor parte de los registros a cero y tomando la primera instrucción de la memoria EPROM[@guide2011intel sección 9].
-- A continuación el sistema ejecuta el POST
- 
+- El procesador comienza **inicializando** los registros y tomando la primera instrucción de la memoria EPROM[@guide2011intel sección 9].
+- Se ejecuta el **POST** (del inglés *Power On Self-Test*) y comprueba e inicializa los dispositivos[@phoenix1989system].
+- (Dependiendo del sistema operativo) se construye la información necesaria para el ACPI (del inglés *Advanced Configuration and Power Interface*)[@abraham2013operating sección 19.3.3.11]
+- Si la comprobación ha sido correcta la BIOS busca en una lista de dispositivos hasta que encuentra uno inicializable y **transfiere la ejecución** a este[@abraham2013operating].
 
 ### POST
+
+### MBR
+
+Tras realizar las comprobaciones de POST la BIOS busca en una lista de dispositivos prefijada un dispositivo de memoria no volátil inicializable (es decir, que contenga un bloque que indique cómo debe inicializarse) hasta que encuentra uno.
+
+Una vez encontrado la BIOS indica al controlador de este disco que lea los bloques adecuados a memoria y empieza a ejecutar el código. Típicamente los bloques leídos se encuentran en el primer sector del disco que contiene el MBR (del inglés, *Master Boot Record*). Este contiene una tabla de las particiones del disco que indica de dónde debe cargarse el sistema operativo[@abraham2013operating sección 10.5.2].
+
 ## Modificaciones
 ## Implementaciones
 ## Limitaciones
