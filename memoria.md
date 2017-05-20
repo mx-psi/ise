@@ -74,33 +74,44 @@ BIOS (del inglés *Basic Input/Ouput System*) es el *firmware* de arranque de lo
 
 La BIOS servía además como una **capa de abstracción** entre el *hardware* y el sistema operativo, permitiendo modificar el hardware de manera independiente. Este era el caso de PC-DOS y MS-DOS, los sistemas operativos que predominaban en el mercado a finales de los años 80 [@phoenix1989system p. 2 (31)].
 
-El funcionamiento general de la BIOS se basa en la interacción con las interrupciones *hardware* que proveen los procesadores Intel.
+Dado que la BIOS es un estándar *de facto* hay varios tipos de la misma con variaciones entre empresas y modelos de ordenador. Describimos en esta sección sus características de forma general.
 
-## Interrupciones
-
-Una interrupción es una señal del procesador que indica un evento que debe ser atendido inmediatamente. La CPU entonces interrumpe su ejecución y transfiere la ejecución a una localización fija[@abraham2013operating Sección 1.2.1]. Las interrupciones pueden provenir del procesador del hardware, del software o del usuario. En los sistemas con BIOS una serie de interrupciones estaban reservadas para esta[@phoenix1989system pp. 35-36].
+El funcionamiento general de la BIOS se basa en la interacción con las interrupciones *hardware* que proveen los procesadores Intel. Una interrupción es una señal del procesador que indica un evento que debe ser atendido inmediatamente. La CPU entonces interrumpe su ejecución y transfiere la ejecución a una localización fija[@abraham2013operating Sección 1.2.1]. Las interrupciones pueden provenir del procesador del hardware, del software o del usuario. En los sistemas con BIOS una serie de interrupciones estaban reservadas para esta[@phoenix1989system pp. 35-36].
 
 ## El proceso de arranque
 
 Aunque existen diferencias en función de la implementación o el tipo de BIOS el proceso de arranque en ordenadores compatibles con IBM sigue en términos generales los siguientes pasos[@abraham2013operating Sección 2.10]:
 
 - El procesador comienza **inicializando** los registros y tomando la primera instrucción de la memoria EPROM[@guide2011intel sección 9].
-- Se ejecuta el **POST** (del inglés *Power On Self-Test*) y comprueba e inicializa los dispositivos[@phoenix1989system].
+- Se ejecuta el **POST** (del inglés *Power On Self-Test*) que comprueba e inicializa los dispositivos[@phoenix1989system].
 - (Dependiendo del sistema operativo) se construye la información necesaria para el ACPI (del inglés *Advanced Configuration and Power Interface*)[@abraham2013operating sección 19.3.3.11]
 - Si la comprobación ha sido correcta la BIOS busca en una lista de dispositivos hasta que encuentra uno inicializable y **transfiere la ejecución** a este[@abraham2013operating].
 
+Es posible introducir ROMs opcionales que modifiquen alguna parte del proceso reemplazando el código[@phoenix1989system].
+
 ### POST
+
+Antes de poder utilizar un IBM PC compatible hay que comprobar e inicializar sus componentes. Esta etapa es conocida como **POST**. Un fallo del proceso POST provoca un error del sistema que indica el error por medio de pitidos sonoros[@phoenix1989system Capítulo 6]. 
+
+Los componentes de la placa base del PC se comprueban primero entre ellos se comprueba: la CPU, la ROM donde se guarda la BIOS, el controlador DMA (del inglés *Direct Memory Access*) del procesador, el controlador del teclado y la RAM (en ese orden). A continuación se comprueban otros componentes como el teclado, los discos o cualquier tipo de hardware adicional[@phoenix1989system Capítulo 6].
 
 ### MBR
 
-Tras realizar las comprobaciones de POST la BIOS busca en una lista de dispositivos prefijada un dispositivo de memoria no volátil inicializable (es decir, que contenga un bloque que indique cómo debe inicializarse) hasta que encuentra uno.
+Tras realizar las comprobaciones de POST se llama a la interrupción `INT 19h` que ejecuta el código de carga del *bootstrap*.  La BIOS busca en una lista de dispositivos prefijada un dispositivo de memoria no volátil inicializable (es decir, que contenga un bloque que indique cómo debe inicializarse) hasta que encuentra uno. En primer lugar comprueba los CDs (y en máquinas antiguas los disquettes) y a continuación mira en los discos duros[@phoenix1989system Capítulo 16]. Si el dispositivo en cuestión tuviera su inicialización protegida por contraseña la BIOS preguntaría en este paso por la misma (ver sección de *Seguridad* para más detalles en este paso).
 
-Una vez encontrado la BIOS indica al controlador de este disco que lea los bloques adecuados a memoria y empieza a ejecutar el código. Típicamente los bloques leídos se encuentran en el primer sector del disco que contiene el MBR (del inglés, *Master Boot Record*). Este contiene una tabla de las particiones del disco que indica de dónde debe cargarse el sistema operativo[@abraham2013operating sección 10.5.2].
+Si la BIOS no encontrara un dispositivo que pueda inicializar llamaría a la interrupción `INT 18h` que puede llamar a una rutina que permita al sistema ser inicializado via red, inicializar un intérprete de BASIC o mostrar un mensaje indicando la falta de dispositivos inicializables.
+
+Una vez encontrado la BIOS indica al controlador de este disco que lee un sector a memoria (a una posición fija, `0000:7C00h`) y empieza a ejecutar el código. Típicamente el sector leídos es el primer sector del disco, que contiene el MBR (del inglés, *Master Boot Record*). Este consta de una tabla de las particiones del disco que indica de dónde debe cargarse el sistema operativo[@abraham2013operating sección 10.5.2].
+
+## La BIOS como capa de abstracción
 
 ## Modificaciones
 ## Implementaciones
 ## Limitaciones
 ## Seguridad
+
+Como medida de seguridad antes de la inicialización de un disco (u otro dispositivo inicializable) puede introducirse una contraseña. La BIOS preguntará en cada inicio de este dispositivo por esta contraseña, dando un total de 3 intentos. En el caso de que esta sea introducida de forma incorrecta estas 3 veces el sistema se detiene y no podrá intentar inicializarse de nuevo hasta que se produzca un reinicio[@phoenix1989system].
+
 <!--Cómo poner una contraseña y qué hacer si se nos olvida (quitar la pila) -->
 
 # UEFI
