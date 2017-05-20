@@ -29,9 +29,9 @@ Cosas a tener en cuenta:
 
 ## El inicio de los gestores de arranque
 
-Los primeros ordenadores como el ENIAC (1946) no necesitaban un sistema de arranque: tras dar corriente a los distintos dispositivos y limpiar la memoria eran capaces de realizar cualquier operación[@mccartney1999eniac]. Los programas eran configurados manualmente y no se guardaban en memoria por lo que el sistema sólo contaba con una forma de reiniciar la memoria de datos[@goldstine1946report pp.31].
+Los primeros ordenadores como el ENIAC (1946) no necesitaban un sistema de arranque: tras dar corriente a los distintos dispositivos y limpiar la memoria eran capaces de realizar cualquier operación[@mccartney1999eniac]. Los programas eran configurados manualmente y no se guardaban en memoria por lo que el sistema solo contaba con una forma de reiniciar la memoria de datos[@goldstine1946report pp.31].
 
-Con la llegada de los primeros ordenadores comerciales (orientados al cálculo numérico en grandes empresas y agencias gubernamentales) surgió la necesidad de un sistema para cargar el programa inicial de memoria. Por ejemplo los ordenadores de IBM  como el IBM 701 (1952) contaban con un botón para la carga inicial de un programa[@ibm701 pp.12 (1273)], como se describe en el manual de IBM 7030 (1962) [@ibm7030 pp.125-127]:
+Con la llegada de los primeros ordenadores comerciales, orientados al cálculo numérico en grandes empresas y agencias gubernamentales, surgió la necesidad de un sistema para cargar el programa inicial en memoria. Por ejemplo, los ordenadores de IBM  como el IBM 701 (1952) contaban con un botón para la carga inicial de un programa[@ibm701 pp.12 (1273)], como se describe en el manual de IBM 7030 (1962) [@ibm7030 pp.125-127]:
 
 > El canal responsable de la interrupción lee un número de palabras específico de una zona de almacenamiento central. [...] El programa inicial [...] debe empezar con una palabra de control que especifica el número de palabras al leer y la dirección de memoria donde se halla la primera de ellas. [...] Cuando el programa ha sido leído el ordenador empieza automáticamente la ejecución del nuevo programa.
 
@@ -47,11 +47,11 @@ La posterior aparición de los sistemas operativos provocó la necesidad de crea
 
 ## La memoria ROM
 
-La memoria ROM (del inglés *Read-Only Memory*) permitió el establecimiento del código inicial del gestor de arranque en una localización fija que el procesador podía leer al inicio. Es un tipo de memoria **no volátil**: su contenido no se borra cuando el sistema no tiene energía (como ocurre en la memoria RAM) y su modificación no es posible durante la ejecución y es un proceso difícil[@william2006computer Capítulo 5].
+La memoria ROM (del inglés *Read-Only Memory*) permitió el establecimiento del código inicial del gestor de arranque en una localización fija que el procesador podía leer al inicio. Es un tipo de memoria **no volátil**: su contenido no se borra cuando el sistema no tiene energía (como ocurre en la memoria RAM) y su modificación es un proceso difícil que no es posible durante la ejecución[@william2006computer Capítulo 5].
 
-La modificación del gestor de arranque debía hacerse modificando esta memoria cuando era posible, proceso que variaba según el tipo de memoria[@william2006computer Capítulo 5, Types of ROM]:
+La modificación del gestor de arranque debía hacerse modificando esta memoria cuando fuese posible, proceso que variaba según el tipo de memoria[@william2006computer Capítulo 5, Types of ROM]:
 
-- **PROM**: ROM programable eléctricamente lo que permite la modificación no industrial
+- **PROM**: ROM programable eléctricamente, lo que permite la modificación no industrial
 - **EPROM**: ROM borrable mediante exposición a luz ultravioleta. Puede ser modificada en múltiples ocasiones pero el proceso puede durar hasta 20 minutos
 - **EEPROM**: ROM borrable elécricamente. Este tipo de memoria puede ser actualizada *in situ* pero el proceso tarda varios órdenes de magnitud más que la lectura (del orden de microsegundos)
 
@@ -129,6 +129,8 @@ No he encontrado nada de nada en servidores salvo https://firmware.intel.com/sit
 En clase dijo que podíamos hablar de "Firmware de racks que controla y monitoriza el rack y sus componentes (más específico de servidores y CPD [centro de procesamiento de datos ])"
 -->
 # Alternativas libres: libreboot y coreboot
+
+# Conclusiones finales
 
 \newpage
 # Referencias
