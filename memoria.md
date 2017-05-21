@@ -84,26 +84,42 @@ Aunque existen diferencias en función de la implementación o el tipo de BIOS e
 
 - El procesador comienza **inicializando** los registros y tomando la primera instrucción de la memoria EPROM[@guide2011intel sección 9].
 - Se ejecuta el **POST** (del inglés *Power On Self-Test*) que comprueba e inicializa los dispositivos[@phoenix1989system].
-- (Dependiendo del sistema operativo) se construye la información necesaria para el ACPI (del inglés *Advanced Configuration and Power Interface*)[@abraham2013operating sección 19.3.3.11]
+- (Dependiendo del sistema operativo) se construye la información necesaria para el ACPI (del inglés *Advanced Configuration and Power Interface*), que permite que el sistema operativo se encargue de la gestión del uso de energía por los distintos componentes [@abraham2013operating sección 19.3.3.11]
 - Si la comprobación ha sido correcta la BIOS busca en una lista de dispositivos hasta que encuentra uno inicializable y **transfiere la ejecución** a este[@abraham2013operating].
 
 Es posible introducir ROMs opcionales que modifiquen alguna parte del proceso reemplazando el código[@phoenix1989system].
 
-### POST
+### Power on self-test
 
-Antes de poder utilizar un IBM PC compatible hay que comprobar e inicializar sus componentes. Esta etapa es conocida como **POST**. Un fallo del proceso POST provoca un error del sistema que indica el error por medio de pitidos sonoros[@phoenix1989system Capítulo 6]. 
+Antes de poder utilizar un IBM PC compatible hay que comprobar e inicializar sus componentes. Esta etapa es conocida como **POST**. Un fallo del proceso POST provoca un error del sistema que indica el error por medio de pitidos sonoros[@phoenix1989system Capítulo 6] o por medio del puerto 80 en las placas base más recientes. 
 
-Los componentes de la placa base del PC se comprueban primero entre ellos se comprueba: la CPU, la ROM donde se guarda la BIOS, el controlador DMA (del inglés *Direct Memory Access*) del procesador, el controlador del teclado y la RAM (en ese orden). A continuación se comprueban otros componentes como el teclado, los discos o cualquier tipo de hardware adicional[@phoenix1989system Capítulo 6].
+Los componentes de la placa base del PC se comprueban primero entre ellos se comprueba: la CPU, la ROM donde se guarda la BIOS, el controlador DMA (del inglés *Direct Memory Access*) del procesador, el controlador del teclado y la RAM. A continuación se comprueban otros componentes como el teclado, los discos o cualquier tipo de hardware adicional[@phoenix1989system Capítulo 6].
 
-### MBR
+En esta parte del proceso también se comprueban en las placas base recientes (aquellas que siguen el *BIOS Boot Specification*) los dispositivos IPL (del inglés *Initial Program Load Device*, que pueden inicializarse) y se crea una lista con prioridad de los dispositivos disponibles[@compaq1intel].
 
-Tras realizar las comprobaciones de POST se llama a la interrupción `INT 19h` que ejecuta el código de carga del *bootstrap*.  La BIOS busca en una lista de dispositivos prefijada un dispositivo de memoria no volátil inicializable (es decir, que contenga un bloque que indique cómo debe inicializarse) hasta que encuentra uno. En primer lugar comprueba los CDs (y en máquinas antiguas los disquettes) y a continuación mira en los discos duros[@phoenix1989system Capítulo 16]. Si el dispositivo en cuestión tuviera su inicialización protegida por contraseña la BIOS preguntaría en este paso por la misma (ver sección de *Seguridad* para más detalles en este paso).
+### Master Boot Record e inicialización
+
+Tras realizar las comprobaciones de POST se llama a la interrupción `INT 19h` que ejecuta el código de carga del *bootstrap*.  La BIOS busca en una lista de dispositivos prefijada un dispositivo de memoria no volátil inicializable (es decir, que contenga un bloque que indique cómo debe inicializarse) hasta que encuentra uno. En las primeras versionas comprueba los CDs (y en máquinas antiguas los disquettes) y a continuación mira en los discos duros[@phoenix1989system Capítulo 16], mientras que en las más recientes sigue la *BIOS Boot Specification* descrita en la sección anterior. Si el dispositivo en cuestión tuviera su inicialización protegida por contraseña la BIOS preguntaría en este paso por la misma (ver sección de *Seguridad* para más detalles en este paso).
 
 Si la BIOS no encontrara un dispositivo que pueda inicializar llamaría a la interrupción `INT 18h` que puede llamar a una rutina que permita al sistema ser inicializado via red, inicializar un intérprete de BASIC o mostrar un mensaje indicando la falta de dispositivos inicializables.
 
-Una vez encontrado la BIOS indica al controlador de este disco que lee un sector a memoria (a una posición fija, `0000:7C00h`) y empieza a ejecutar el código. Típicamente el sector leídos es el primer sector del disco, que contiene el MBR (del inglés, *Master Boot Record*). Este consta de una tabla de las particiones del disco que indica de dónde debe cargarse el sistema operativo[@abraham2013operating sección 10.5.2].
+Una vez encontrado la BIOS indica al controlador de este disco que lee el primer sector del disco a memoria (a una posición fija, `0000:7C00h`) y empieza a ejecutar el código. Este contiene el MBR (del inglés, *Master Boot Record*), que consta de una tabla de las particiones del disco que indica de dónde debe cargarse el sistema operativo[@abraham2013operating sección 10.5.2]. Contiene además código que lee esta tabla de particiones, comprueba qué particiones están *activas* (es decir, marcadas como inicializables) y lee el primer sector de la partición correspondiente[@tldpPartitions].
+
+Este primer sector de una partición se conoce como *boot sector* y contiene el código necesario para leer los primeros bloques del sistema operativo a iniciar o de un *boot loader* como GRUB a una posición fija del disco. Finalmente se ejecuta las instrucciones leídas dando paso al sistema operativo o *boot loader*[@tldpBoot].
+
+### Tipos de particiones
+
+El Master Boot Record permite hasta 4 *particiones primarias* (numeradas de 1 a 4) y particiones lógicas adicionales (a partir de 5). La tabla de la que consta especifica la localización en el disco en la que comienza cada tabla, con un formato que depende del sistema operativo[@manfdisk].
+
+Las particiones constan de un identificador que identifica el tipo de la partición y su uso: si está vacía, qué sistema de archivos contiene o si es un partición *swap* por ejemplo[@tldpPartitions].
+
 
 ## La BIOS como capa de abstracción
+
+Los sistemas operativos más recientes como aquellos basados en GNU/Linux o las versiones recientes de Windows sólo utilizan la BIOS para su inicialización pero los sistemas antiguos la utilizaban además como una capa de abstracción con respecto del *hardware*: por medio de las interrupciones del procesador podía interaccionarse con los distintos componentes sin necesidad de conocer o adaptarse a las características específicas del dispositivo[@phoenix1989system].
+
+Algunos ejemplos de estas formas de interacción son el uso del teclado (`INT 09h` e `INT 16h`), del sistema de vídeo (`INT 10h`), la lectura de discos (`INT 13h`) y otros servicios como la obtención del tiempo (`INT 1Ah`). Esta interacción estaba basada en funciones que toman sus argumentos de los registros del procesador
+[@phoenix1989system] [@tldpPartitions]. En sistemas más recientes es el sistema operativo el que captura estas excepciones y provee de un método para realizarlas.
 
 ## Modificaciones
 ## Implementaciones
