@@ -74,7 +74,7 @@ BIOS (del inglés *Basic Input/Ouput System*) es el *firmware* de arranque de lo
 
 La BIOS servía además como una **capa de abstracción** entre el *hardware* y el sistema operativo, permitiendo modificar el hardware de manera independiente. Este era el caso de PC-DOS y MS-DOS, los sistemas operativos que predominaban en el mercado a finales de los años 80 [@phoenix1989system p. 2 (31)].
 
-Dado que la BIOS es un estándar *de facto* hay varios tipos de la misma con variaciones entre empresas y modelos de ordenador. Describimos en esta sección sus características de forma general.
+Dado que la BIOS es un estándar *de facto* hay varios tipos de la misma con variaciones entre empresas y modelos de ordenador. Describimos en esta sección las características de forma general salvo que se indique lo contrario.
 
 El funcionamiento general de la BIOS se basa en la interacción con las interrupciones *hardware* que proveen los procesadores Intel. Una interrupción es una señal del procesador que indica un evento que debe ser atendido inmediatamente. La CPU entonces interrumpe su ejecución y transfiere la ejecución a una localización fija[@abraham2013operating Sección 1.2.1]. Las interrupciones pueden provenir del procesador del hardware, del software o del usuario. En los sistemas con BIOS una serie de interrupciones estaban reservadas para esta[@phoenix1989system pp. 35-36].
 
@@ -105,7 +105,7 @@ Si la BIOS no encontrara un dispositivo que pueda inicializar llamaría a la int
 
 Una vez encontrado la BIOS indica al controlador de este disco que lee el primer sector del disco a memoria (a una posición fija, `0000:7C00h`) y empieza a ejecutar el código. Este contiene el MBR (del inglés, *Master Boot Record*), que consta de una tabla de las particiones del disco que indica de dónde debe cargarse el sistema operativo[@abraham2013operating sección 10.5.2]. Contiene además código que lee esta tabla de particiones, comprueba qué particiones están *activas* (es decir, marcadas como inicializables) y lee el primer sector de la partición correspondiente[@tldpPartitions].
 
-Este primer sector de una partición se conoce como *boot sector* y contiene el código necesario para leer los primeros bloques del sistema operativo a iniciar o de un *boot loader* como GRUB a una posición fija del disco. Finalmente se ejecuta las instrucciones leídas dando paso al sistema operativo o *boot loader*[@tldpBoot].
+Este primer sector de una partición se conoce como *boot sector* y contiene el código necesario para leer los primeros bloques del sistema operativo a iniciar o de un *boot loader* como GRUB a una posición fija del disco. Finalmente se ejecuta las instrucciones leídas dando paso al sistema operativo o al *boot loader*[@tldpBoot].
 
 ### Tipos de particiones
 
@@ -122,7 +122,15 @@ Algunos ejemplos de estas formas de interacción son el uso del teclado (`INT 09
 [@phoenix1989system] [@tldpPartitions]. En sistemas más recientes es el sistema operativo el que captura estas excepciones y provee de un método para realizarlas.
 
 ## Modificaciones
+
 ## Implementaciones
+
+BIOS es un estándar *de facto*, es decir, no existe una especificación estándar de su funcionamiento o su implementación (salvo de algunas modificaciones o tecnologías específicas que se describen en la sección *Modificaciones*), por lo que, dependiendo del fabricante, existen varias versiones del mismo. Las implementaciones más importantes son:
+
+- **Phoenix BIOS** y **AwardBIOS**, de la empresa *Phoenix Technologies*, una de las primeras en conseguir clonar la especificación origina de IBM [@phoenix1989system] [@awardbios].
+- **AMI BIOS**, de *American Megatrends*, una de las BIOS más utilizadas que en la década de los 90 tenía más del 75% del mercado[@amibios].
+- **SeaBIOS**, una implementación libre utilizada en la actualidad por sistemas libres como coreboot[@seabios].
+
 ## Limitaciones
 ## Seguridad
 
