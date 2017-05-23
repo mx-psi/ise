@@ -123,6 +123,12 @@ Algunos ejemplos de estas formas de interacción son el uso del teclado (`INT 09
 
 ## Modificaciones
 
+La BIOS permite utilizar ROMs opcionales que permitan la modficación del comportamiento por defecto para añadir nuevas funcionalidades o permitir la compatibilidad con dispositivos hardware que no puedan manejarse con la BIOS por defecto[@zimmer2017beyond Foreword]. Algunas de ellas son:
+
+- Una de las extensiones más utilizadas de BIOS es la **BBS** (del inglés, *BIOS Boot Specification*). Esta es una especificación diseñada por Intel, Phoenix Tecnologies y Compaq en 1996 que permite la creación automática de una lista de dispositivos inicializables y permite cargar durante la etapa POST ROMs opcionales que añadan nuevas funcionalidades[@compaq1intel].
+- La especificación **ACPI** para la gestión de la energía de los componentes de un PC también es parcialmente responsabilidad de la BIOS, que se encargaría de inicializar la memoria de las tablas ACPI y la memoria que deba ser guardada en periodos de hibernación[@hewlett2004microsoft sección 16.3.2]. Esta especificación ha sido implementada por empresas como Phoenix[@phoenixbiosRelease].
+- El estándar **SCSI** permite la unificación de las interfaces de los dispositivos de almacenamiento periférico. Para permitir la inicialización por parte de uno de estos dispositivos se añade una ROM opcional que gestiona el proceso[@field2000book].
+
 ## Implementaciones
 
 BIOS es un estándar *de facto*, es decir, no existe una especificación estándar de su funcionamiento o su implementación (salvo de algunas modificaciones o tecnologías específicas que se describen en la sección *Modificaciones*), por lo que, dependiendo del fabricante, existen varias versiones del mismo. Las implementaciones más importantes son:
