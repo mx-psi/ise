@@ -43,7 +43,7 @@ TODO: No sé si añadirla pero para la presentación a lo mejor
 -->
 
 <!-- El primer gestor de arranque-->
-La posterior aparición de los sistemas operativos provocó la necesidad de crear un gestor de arranque que cargara de forma autónoma los datos necesarios para la inicialización, el primero de ellos llamado BIOS. El término **BIOS** apareció por primera vez en el sistema operativo CP/M diseñado por Gary Kildall en 1975 para designar la capa software que facilitaba la abstracción entre el *hardware* y el sistema operativo[@garykildall]. Este sistema podía ejecutarse sobre el procesador Intel 8080 y soportaba únicamente 64 KB de memoria. El sistema operativo de Microsoft MS-DOS expandió CP/M para añadir nuevas funcionalidades conservando la parte análoga a la BIOS[@abraham2013operating cap. 20, pp.901].
+La posterior aparición de los sistemas operativos provocó la necesidad de crear un gestor de arranque que cargara de forma autónoma los datos necesarios para la inicialización, el primero de ellos llamado BIOS. El término **BIOS** apareció por primera vez en el sistema operativo CP/M diseñado por Gary Kildall en 1975 para designar la capa software que facilitaba la abstracción entre el *hardware* y el sistema operativo[@garykildall]. Este sistema podía ejecutarse sobre el procesador Intel 8080 y soportaba únicamente 64 kB de memoria. El sistema operativo de Microsoft MS-DOS expandió CP/M para añadir nuevas funcionalidades conservando la parte análoga a la BIOS[@abraham2013operating cap. 20, pp.901].
 
 ## La memoria ROM
 
@@ -53,7 +53,7 @@ La modificación del gestor de arranque debía hacerse modificando esta memoria 
 
 - **PROM**: ROM programable eléctricamente, lo que permite la modificación no industrial
 - **EPROM**: ROM borrable mediante exposición a luz ultravioleta. Puede ser modificada en múltiples ocasiones pero el proceso puede durar hasta 20 minutos
-- **EEPROM**: ROM borrable elécricamente. Este tipo de memoria puede ser actualizada *in situ* pero el proceso tarda varios órdenes de magnitud más que la lectura (del orden de microsegundos)
+- **EEPROM**: ROM borrable eléctricamente. Este tipo de memoria puede ser actualizada *in situ* pero el proceso tarda varios órdenes de magnitud más que la lectura (del orden de microsegundos)
 
 Utilizando este tipo de tecnologías podían reprogramarse los gestores de arranque que luego eran leídos por el procesador. Este modelo es también el utilizado en la actualidad para los ordenadores personales [@guide2011intel sección 9.1.4]: los procesadores Intel x86 toman la primera instrucción de la dirección física `FFFFFFF0H` donde debe estar localizada la memoria (EP)ROM. También es el modelo utilizado por muchos sistemas embebidos[@abraham2013operating].
 
@@ -99,9 +99,9 @@ En esta parte del proceso también se comprueban en las placas base recientes (a
 
 ### Master Boot Record e inicialización
 
-Tras realizar las comprobaciones de POST se llama a la interrupción `INT 19h` que ejecuta el código de carga del *bootstrap*.  La BIOS busca en una lista de dispositivos prefijada un dispositivo de memoria no volátil inicializable (es decir, que contenga un bloque que indique cómo debe inicializarse) hasta que encuentra uno. En las primeras versionas comprueba los CDs (y en máquinas antiguas los disquettes) y a continuación mira en los discos duros[@phoenix1989system Capítulo 16], mientras que en las más recientes sigue la *BIOS Boot Specification* descrita en la sección anterior. Si el dispositivo en cuestión tuviera su inicialización protegida por contraseña la BIOS preguntaría en este paso por la misma (ver sección de *Seguridad* para más detalles en este paso).
+Tras realizar las comprobaciones de POST se llama a la interrupción `INT 19h` que ejecuta el código de carga del *bootstrap*.  La BIOS busca en una lista de dispositivos prefijada un dispositivo de memoria no volátil inicializable (es decir, que contenga un bloque que indique cómo debe inicializarse) hasta que encuentra uno. En las primeras versionas comprueba los CDs (y en máquinas antiguas los disquetes) y a continuación mira en los discos duros[@phoenix1989system Capítulo 16], mientras que en las más recientes sigue la *BIOS Boot Specification* descrita en la sección anterior. Si el dispositivo en cuestión tuviera su inicialización protegida por contraseña la BIOS preguntaría en este paso por la misma (ver sección de *Seguridad* para más detalles en este paso).
 
-Si la BIOS no encontrara un dispositivo que pueda inicializar llamaría a la interrupción `INT 18h` que puede llamar a una rutina que permita al sistema ser inicializado via red, inicializar un intérprete de BASIC o mostrar un mensaje indicando la falta de dispositivos inicializables.
+Si la BIOS no encontrara un dispositivo que pueda inicializar llamaría a la interrupción `INT 18h` que puede llamar a una rutina que permita al sistema ser inicializado vía red, inicializar un intérprete de BASIC o mostrar un mensaje indicando la falta de dispositivos inicializables.
 
 Una vez encontrado la BIOS indica al controlador de este disco que lee el primer sector del disco a memoria (a una posición fija, `0000:7C00h`) y empieza a ejecutar el código. Este contiene el MBR (del inglés, *Master Boot Record*), que consta de una tabla de las particiones del disco que indica de dónde debe cargarse el sistema operativo[@abraham2013operating sección 10.5.2]. Contiene además código que lee esta tabla de particiones, comprueba qué particiones están *activas* (es decir, marcadas como inicializables) y lee el primer sector de la partición correspondiente[@tldpPartitions].
 
@@ -123,11 +123,13 @@ Algunos ejemplos de estas formas de interacción son el uso del teclado (`INT 09
 
 ## Modificaciones
 
-La BIOS permite utilizar ROMs opcionales que permitan la modficación del comportamiento por defecto para añadir nuevas funcionalidades o permitir la compatibilidad con dispositivos hardware que no puedan manejarse con la BIOS por defecto[@zimmer2017beyond Foreword]. Algunas de ellas son:
+La BIOS permite utilizar **ROMs opcionales** que modifican el comportamiento por defecto para añadir nuevas funcionalidades o permitir la compatibilidad con dispositivos hardware que no puedan manejarse con la BIOS por defecto[@zimmer2017beyond Foreword]. Algunas de ellas son:
 
 - Una de las extensiones más utilizadas de BIOS es la **BBS** (del inglés, *BIOS Boot Specification*). Esta es una especificación diseñada por Intel, Phoenix Tecnologies y Compaq en 1996 que permite la creación automática de una lista de dispositivos inicializables y permite cargar durante la etapa POST ROMs opcionales que añadan nuevas funcionalidades[@compaq1intel].
 - La especificación **ACPI** para la gestión de la energía de los componentes de un PC también es parcialmente responsabilidad de la BIOS, que se encargaría de inicializar la memoria de las tablas ACPI y la memoria que deba ser guardada en periodos de hibernación[@hewlett2004microsoft sección 16.3.2]. Esta especificación ha sido implementada por empresas como Phoenix[@phoenixbiosRelease].
 - El estándar **SCSI** permite la unificación de las interfaces de los dispositivos de almacenamiento periférico. Para permitir la inicialización por parte de uno de estos dispositivos se añade una ROM opcional que gestiona el proceso[@field2000book].
+
+Además, mediante las opciones de configuración es posible modificar algunos aspectos de la ejecución de la BIOS. Esta configuración es específica de cada implementación y no existía en las primeras versiones. Normalmente es accesible pulsando F2 durante el arranque.
 
 ## Implementaciones
 
@@ -138,11 +140,21 @@ BIOS es un estándar *de facto*, es decir, no existe una especificación estánd
 - **SeaBIOS**, una implementación libre utilizada en la actualidad por sistemas libres como coreboot[@seabios].
 
 ## Limitaciones
+
+El diseño de la BIOS no está estandarizado en su totalidad lo que provoca problemas de compatibilidad. Además contaba con grandes limitaciones[@aTaleOfTwoStandards]:
+
+- El Master Boot Record sólo permite 4 particiones primarias y permite un tamaño máximo de 2 TB, insuficiente para muchos dispositivos actuales[@tldpPartitions].
+- Es dependiente a la arquitectura *hardware* subyacente como la CPU: estaba basada en 16 bits cuando la arquitectura actual es de 64 bits y en el uso de interrupciones, lo que limita el diseño del *hardware*.
+- Las ROMs opcionales tienen un tamaño limitado que impide la compatibilidad con algunos dispositivos inicializables en servidores.
+- La mayor parte de las implementaciones no tienen un diseño modular lo que dificulta la reutilización del código
+
+
 ## Seguridad
 
 Como medida de seguridad antes de la inicialización de un disco (u otro dispositivo inicializable) puede introducirse una contraseña. La BIOS preguntará en cada inicio de este dispositivo por esta contraseña, dando un total de 3 intentos. En el caso de que esta sea introducida de forma incorrecta estas 3 veces el sistema se detiene y no podrá intentar inicializarse de nuevo hasta que se produzca un reinicio[@phoenix1989system].
 
-<!--Cómo poner una contraseña y qué hacer si se nos olvida (quitar la pila) -->
+Las BIOS más recientes (como por ejemplo las de los ordenadores de HP) disponen de otras opciones de seguridad como el uso de cuentas de administración y de usuario o la encriptación de discos duros[@BIOSHP]. Si se nos olvida la contraseña de la BIOS la única opción es quitar la pila de la placa base o restaurar el sistema de fábrica.
+
 
 # UEFI
 
