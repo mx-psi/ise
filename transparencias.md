@@ -17,20 +17,26 @@ colortheme: beaver
 
 # El inicio de los gestores de arranque
 
-Lista incremental:
+![Altair8800b. Los interruptores permitían escribir cada palabra en la memoria interna indicando su estado bit a bit.](imgs/altair8800b.png) 
 
-> - Uno
-> - Dos
-> - Tres
+----
 
--------
+El primer sistema operativo con un gestor de arranque fue **CP/M**
 
-Nueva diapositiva
+![Anuncio de CP/M. De Wikimedia Commons](imgs/CPM_Anuncio.jpg)
 
-. . .
-
-con pausa
 
 # La memoria ROM
 
-Ejemplo
+
+# IBM PCs
+
+# BIOS
+
+# POST
+
+# MBR
+
+# Limitaciones
+
+# UEFI
