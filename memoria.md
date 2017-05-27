@@ -66,7 +66,11 @@ Describimos la estructura y el funcionamiento de la BIOS en [la sección posteri
 
 ## La llegada de UEFI
 
-<!--TODO: Creo que mejor que hagas esto tú Josema-->
+Intel trató de desarrollar una alternativa a BIOS para su familia de procesadores Itanium, que al ser de 64 bits se verían especialmente [limitados por BIOS](#limitaciones), en el programa *Intel Boot Initiative*[@intelEFIandUEFI], que dio lugar a una nueva interfaz entre el firmware y el sistema operativo: la especificación *Extensible Firmware Interface* (EFI). La versión 1.10 de EFI, que terminó siendo la última desarrollada por Intel, fue publicada en 2002 [@secureBoot].
+
+Tres años después se formó el *Unified EFI Forum*, una organización sin ánimo de lucro formada por miembros de empresas tecnológicas punteras en la época que retomó el desarrollo de la especificación EFI, renombrándola a UEFI, y trató de implementarla y hacer de UEFI un estándar para las interfaces de firmware [@UEFIDell] [@intelEFIandUEFI].
+
+UEFI fue adoptado rápidamente en el mercado [@aTaleOfTwoStandards] por [sus numerosas ventajas respecto a BIOS](#BIOSaUEFI). La especificación UEFI se describe en [su sección correspondiente](#uefi).
 
 # BIOS {#bios}
 
@@ -158,12 +162,18 @@ Antes de la inicialización de un dispositivo puede configurarse una contraseña
 Las BIOS más recientes (como por ejemplo las de los ordenadores de HP) disponen de otras opciones de seguridad como el uso de cuentas de administración y de usuario o la encriptación de discos duros[@BIOSHP]. Si se nos olvida la contraseña de la BIOS la única opción es quitar la pila de la placa base o restaurar el sistema de fábrica.
 
 
-# UEFI
+# UEFI {#uefi}
 
-## Transición 
+## Transición {#BIOSaUEFI}
 <!--Por qué hemos pasado de BIOS a UEFI-->
 ## El estándar
 <!--Quién lo define y donde está-->
+## El arranque en UEFI
+<!-- TODO -->
+### GUID Partition Table
+<!-- Qué es y qué ventajas tiene sobre MBR -->
+## Modificaciones
+<!-- TODO: mencionar su mayor extensibilidad -->
 ## Seguridad
 <!--Cómo poner una contraseña y qué hacer si se nos olvida (quitar la pila) -->
 
