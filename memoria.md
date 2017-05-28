@@ -3,7 +3,7 @@ title: UEFI vs BIOS
 author: Ingeniería de Servidores
 date: Universidad de Granada
 lang: es
-fontfamily: arev
+mainfont: Arial
 fontsize: 10pt
 linestretch: 1
 geometry: "a4paper, top=2.5cm, bottom=2.5cm, left=3cm, right=3cm"
@@ -12,9 +12,7 @@ bibliography: citas.bib
 biblio-style: plain
 link-citations: true
 citation-style: estilo.csl
-abstract:
-  Resumen de entre 5-15 líneas. TODO.
-  Praesent fringilla arcu vel urna placerat, nec pharetra nulla iaculis. Suspendisse dolor est, dapibus sed eleifend sit amet, elementum semper purus. Nam nec neque ligula. Sed convallis viverra tortor, vitae mattis lectus congue id. Pellentesque dui dui, faucibus eu tellus pellentesque, sagittis efficitur leo. Ut consequat sapien quis ipsum placerat eleifend. Nunc maximus tincidunt magna, ac tempor urna convallis vitae. Quisque at sapien est. Fusce ultrices auctor arcu vel scelerisque. Quisque sapien libero, efficitur id diam vel, sollicitudin lacinia erat. Pellentesque lobortis nunc mi. Suspendisse consectetur lacus nisi, vel tristique urna interdum at. Integer vehicula eu massa eleifend laoreet. Duis euismod velit sit amet quam sagittis, auctor feugiat ipsum volutpat. 
+abstract: "El nacimiento de los sistemas operativos provocó la necesidad de la creación de gestores de arranque: programas que cargan los datos e instrucciones necesarias en memoria para la ejecución del sistema operativo. Se discute la historia de los gestores de arranque y sus distintas versiones, motivando su uso y las tecnologías necesarias para utlizarlo. A continuación se discute la creación y uso de BIOS en los sistemas IBM originales así como en los más recientes, sus características, limitaciones y posibles modificaciones y aspectos de seguridad. Se compara con el sistema unificado UEFI que permite la estandarización de los gestores de arranque y se discuten sus principales características: TODO"
 ---
 
 <!--
@@ -29,11 +27,11 @@ Cosas a tener en cuenta:
 
 ## El inicio de los gestores de arranque
 
-Los primeros ordenadores como el ENIAC (1946) no necesitaban un sistema de arranque: tras conectar a la red eléctrica los distintos dispositivos y limpiar la memoria eran capaces de realizar cualquier operación[@mccartney1999eniac]. Los programas eran configurados manualmente y no se guardaban en memoria por lo que el sistema sólo contaba con una forma de reiniciar la memoria de datos[@goldstine1946report pp.31].
+Los primeros ordenadores como el ENIAC (1946) no necesitaban un sistema de arranque: tras conectar a la red eléctrica los distintos dispositivos y limpiar la memoria eran capaces de realizar cualquier operación[@mccartney1999eniac]. Los programas eran configurados manualmente y no se guardaban en memoria, por lo que el sistema sólo contaba con una forma de reiniciar la memoria de datos[@goldstine1946report pp.31].
 
 Con la llegada de los primeros ordenadores comerciales, orientados al cálculo numérico en grandes empresas y agencias gubernamentales, surgió la necesidad de un sistema para cargar el programa inicial en memoria. Por ejemplo, los primeros ordenadores de IBM como el IBM 701 (1952) contaban con un botón para la carga inicial de un programa[@ibm701 pp.12 (1273)], como se describe en el manual de IBM 7030 (1962) [@ibm7030 pp.125-127]:
 
-> El canal responsable de la interrupción lee un número de palabras específico de una zona de almacenamiento central. [...] El programa inicial [...] debe empezar con una palabra de control que especifica el número de palabras al leer y la dirección de memoria donde se halla la primera de ellas. [...] Cuando el programa ha sido leído el ordenador empieza automáticamente la ejecución del nuevo programa.
+> El canal responsable de la interrupción lee un número de palabras específico de una zona de almacenamiento central. [...] El programa inicial [...] debe empezar con una palabra de control que especifica el número de palabras a leer y la dirección de memoria donde se halla la primera de ellas. [...] Cuando el código ha sido leído el ordenador empieza automáticamente la ejecución del nuevo programa.
 
 En el caso de los microcomputadores orientados al uso doméstico como el Altair 8800b (1975) el programa inicial debía escribirse manualmente utilizando unos interruptores de la parte delantera en un proceso difícil y largo[@freiberger2000fire].
 
@@ -55,7 +53,7 @@ La modificación del gestor de arranque debía hacerse modificando esta memoria 
 - **EPROM**: ROM borrable mediante exposición a luz ultravioleta. Puede ser modificada en múltiples ocasiones pero el proceso puede durar hasta 20 minutos
 - **EEPROM**: ROM borrable eléctricamente. Este tipo de memoria puede ser actualizada *in situ* pero el proceso tarda varios órdenes de magnitud más que la lectura (del orden de microsegundos)
 
-Utilizando este tipo de tecnologías podían reprogramarse los gestores de arranque que luego eran leídos por el procesador. Este modelo es también el utilizado en la actualidad para los ordenadores personales [@guide2011intel sección 9.1.4]: los procesadores Intel x86 toman la primera instrucción de la dirección física `FFFFFFF0H` donde debe estar localizada la memoria (EP)ROM. También es el modelo utilizado por muchos sistemas embebidos[@abraham2013operating].
+Utilizando este tipo de tecnologías podían reprogramarse los gestores de arranque que luego eran leídos por el procesador. Este modelo es también el utilizado en la actualidad para los ordenadores personales [@guide2011intel sección 9.1.4]: los procesadores Intel x86 toman la primera instrucción de la dirección física `FFFFFFF0H` donde debe estar localizada la memoria (EP)ROM. También es el modelo utilizado por muchos sistemas embebidos (aunque estos nos necesitan un gestor de arranque: todo el código se encuentra normalmente en ROM)[@abraham2013operating].
 
 ## Los ordenadores de IBM
 
@@ -109,9 +107,9 @@ Tras realizar las comprobaciones de POST se llama a la interrupción `INT 19h` q
 
 Si la BIOS no encontrara un dispositivo que pueda inicializar llamaría a la interrupción `INT 18h` que, dependiendo del sistema, puede llamar a una rutina que permita al sistema ser inicializado vía red, inicializar un intérprete de BASIC o mostrar un mensaje indicando la falta de dispositivos inicializables.
 
-Una vez encontrado la BIOS indica al controlador de este disco que lee el primer sector del disco a memoria (a una posición fija, `0000:7C00h`) y empieza a ejecutar el código. Este contiene el MBR (del inglés, *Master Boot Record*), que consta de una tabla de las particiones del disco que indica de dónde debe cargarse el sistema operativo[@abraham2013operating sección 10.5.2]. Contiene además código que lee esta tabla de particiones, comprueba qué particiones están *activas* (es decir, marcadas como inicializables) y lee el primer sector de la partición correspondiente[@tldpPartitions].
+Una vez encontrado el dispositivo la BIOS indica al controlador de este disco que lea el primer sector del disco a memoria (a una posición fija, `0000:7C00h`) y empieza a ejecutar el código. Este sector contiene el MBR (del inglés, *Master Boot Record*), que consta de una tabla de las particiones del disco que indica de dónde debe cargarse el sistema operativo[@abraham2013operating sección 10.5.2]. Contiene además código que lee esta tabla de particiones, comprueba qué particiones están *activas* (es decir, marcadas como inicializables) y lee el primer sector de la partición correspondiente[@tldpPartitions].
 
-Este primer sector de una partición se conoce como *boot sector* y contiene el código necesario para leer los primeros bloques del sistema operativo a iniciar o de un *boot loader* como GRUB en una posición fija del disco. Finalmente se ejecuta las instrucciones leídas dando paso al sistema operativo o al *boot loader*[@tldpBoot].
+Este primer sector de una partición se conoce como *boot sector* y contiene el código necesario para leer los primeros bloques del sistema operativo a iniciar o de un *boot loader* como GRUB en una posición fija del disco. Finalmente se ejecutan las instrucciones leídas dando paso al sistema operativo o al *boot loader*[@tldpBoot].
 
 ### Tipos de particiones
 
@@ -131,7 +129,7 @@ Algunos ejemplos de estas formas de interacción son el uso del teclado (`INT 09
 
 La BIOS permite utilizar **ROMs opcionales** que modifican el comportamiento por defecto para añadir nuevas funcionalidades o permitir la compatibilidad con dispositivos hardware que no puedan manejarse con la BIOS por defecto[@zimmer2017beyond Foreword]. Algunas de ellas son:
 
-- Una de las extensiones más utilizadas de BIOS es la **BBS** (del inglés, *BIOS Boot Specification*). Esta es una especificación diseñada por Intel, Phoenix Tecnologies y Compaq en 1996 que permite la creación automática de una lista de dispositivos inicializables y permite cargar durante la etapa POST ROMs opcionales que añadan nuevas funcionalidades[@compaq1intel].
+- La **BBS** (del inglés, *BIOS Boot Specification*) es una de las extensiones más utilizadas. Esta es una especificación diseñada por Intel, Phoenix Tecnologies y Compaq en 1996 que permite la creación automática de una lista de dispositivos inicializables y permite cargar durante la etapa POST ROMs opcionales que añadan nuevas funcionalidades[@compaq1intel].
 - La especificación **ACPI** para la gestión de la energía de los componentes de un PC también es parcialmente responsabilidad de la BIOS, que se encargaría de inicializar la memoria de las tablas ACPI y la memoria que deba ser guardada en periodos de hibernación[@hewlett2004microsoft sección 16.3.2]. Esta especificación ha sido implementada por empresas como Phoenix[@phoenixbiosRelease].
 - El estándar **SCSI** permite la unificación de las interfaces de los dispositivos de almacenamiento periférico. Para permitir la inicialización por parte de uno de estos dispositivos se añade una ROM opcional que gestiona el proceso[@field2000book].
 
@@ -141,16 +139,16 @@ Además, mediante las opciones de configuración es posible modificar algunos as
 
 BIOS es un estándar *de facto*, es decir, no existe una especificación estándar de su funcionamiento o su implementación (salvo de algunas [tecnologías específicas](#modificaciones)), por lo que, dependiendo del fabricante, existen varias versiones del mismo. Las implementaciones más importantes son:
 
-- **Phoenix BIOS** y **AwardBIOS**, de la empresa *Phoenix Technologies*, una de las primeras en conseguir clonar la especificación origina de IBM [@phoenix1989system] [@awardbios].
+- **Phoenix BIOS** y **AwardBIOS**, de la empresa *Phoenix Technologies*, una de las primeras en conseguir clonar la especificación original de IBM [@phoenix1989system] [@awardbios].
 - **AMI BIOS**, de *American Megatrends*, una de las BIOS más utilizadas que en la década de los 90 tenía más del 75% del mercado[@amibios].
 - **SeaBIOS**, una implementación libre utilizada en la actualidad por sistemas de arranque libres como coreboot[@seabios].
 
 ## Limitaciones {#limitaciones}
 
-El diseño de la BIOS no está estandarizado en su totalidad lo que provoca problemas de compatibilidad. Además contaba con grandes limitaciones[@aTaleOfTwoStandards]:
+El diseño de la BIOS no está estandarizado en su totalidad lo que provoca problemas de compatibilidad. Además cuenta con grandes limitaciones[@aTaleOfTwoStandards]:
 
 - El Master Boot Record sólo permite 4 particiones primarias y permite un tamaño máximo de 2 TB, insuficiente para muchos dispositivos actuales[@tldpPartitions].
-- Es dependiente a la arquitectura *hardware* subyacente como la CPU: estaba basada en 16 bits cuando la arquitectura actual es de 64 bits y en el uso de interrupciones, lo que limita el diseño del *hardware*.
+- Es dependiente de la arquitectura *hardware* subyacente como la CPU: estaba basada en 16 bits cuando la arquitectura actual es de 64 bits y en el uso de interrupciones, lo que limita el diseño del *hardware*.
 - Las ROMs opcionales tienen un tamaño limitado que impide la compatibilidad con algunos dispositivos inicializables en servidores.
 - La mayor parte de las implementaciones no tienen un diseño modular lo que dificulta la reutilización del código
 
