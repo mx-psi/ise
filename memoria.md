@@ -149,7 +149,7 @@ BIOS es un estándar *de facto*, es decir, no existe una especificación estánd
 
 El diseño de la BIOS no está estandarizado en su totalidad lo que provoca problemas de compatibilidad. Además cuenta con grandes limitaciones[@aTaleOfTwoStandards]:
 
-- El Master Boot Record sólo permite 4 particiones primarias y permite un tamaño máximo de 2 TB, insuficiente para muchos dispositivos actuales[@tldpPartitions].
+- El Master Boot Record sólo permite 4 particiones primarias [@tldpPartitions] y, para un tamaño de bloque de 512 bytes, permite un tamaño máximo de partición de 2 TB, insuficiente para muchos dispositivos actuales[@ibmGPT].
 - Es dependiente de la arquitectura *hardware* subyacente como la CPU: estaba basada en 16 bits cuando la arquitectura actual es de 64 bits y en el uso de interrupciones, lo que limita el diseño del *hardware*.
 - Las ROMs opcionales tienen un tamaño limitado que impide la compatibilidad con algunos dispositivos inicializables en servidores.
 - La mayor parte de las implementaciones no tienen un diseño modular lo que dificulta la reutilización del código.
@@ -175,10 +175,16 @@ El estándar UEFI cubre las [limitaciones de BIOS](#limitaciones) [@UEFIDell]:
 - Las aplicaciones UEFI que son ejecutadas pueden estar en memorias de cualquier tipo, de forma que el almacenamiento no supone un problema de compatibilidad. <!-- TODO: esto requiere una fuente alternativa; en UEFIDell solo dice que es muy extensible, pero no cómo -->
 - Al descomponer la rutina de inicio en aplicaciones UEFI, el código puede modularizarse sin trabas.
 
-Todo ello, junto con la posibilidad que ofrece UEFI de desarrollar un entorno previo al arranque independiente del sistema operativo y la inclusión de [Secure Boot](#secureBoot) a partir de la versión 2.2, ha supuesto la imposición de UEFI en el mercado. <!-- TODO: hay más ventajas de UEFI que no son una respuesta directa a las limitaciones de BIOS, en particular la mayor facilidad de modificación. Si se pone algo de esto, enlazar con Modificaciones -->
+Todo ello, junto con la posibilidad que ofrece UEFI de desarrollar un entorno previo al arranque independiente del sistema operativo y la inclusión de [Secure Boot](#secureBoot) a partir de la versión 2.2, ha supuesto la imposición de UEFI en el mercado. La no compatibilidad de los sistemas operativos con UEFI durante los inicios de este no supuso un problema dado que UEFI dispone del *Compatibility Support Module*, CSM, que permite la carga bajo UEFI de sistemas operativos no adaptados a UEFI. <!-- TODO: hay más ventajas de UEFI que no son una respuesta directa a las limitaciones de BIOS, en particular la mayor facilidad de modificación. Si se pone algo de esto, enlazar con Modificaciones -->
 
 ## El estándar
-<!--Quién lo define y donde está-->
+
+<!-- TODO: queda muy corto pero no sé qué más poner -->
+
+Desde su *adopción* en 2005, el *UEFI Forum* se encarga de continuar con el desarrollo del estándar.
+
+La última versión del estándar es la 2.6 errata A, que puede consultarse en [@UEFIspec].
+
 ## El arranque en UEFI
 
 A diferencia de lo que ocurre en BIOS, UEFI gestiona el arranque mediante una aplicación, ***Boot Manager***, que efectúa las rutinas equivalentes a las que ejecuta [BIOS](#bios) usando la interfaz proporcionada por UEFI [@UEFIDell].
@@ -188,11 +194,20 @@ El *Boot Manager* es la aplicación UEFI que se ejecuta inmediatamente después 
 Tanto el *Boot Manager* como otras aplicaciones pueden ejecutar aplicaciones UEFI. Una vez que el código de una aplicación UEFI o de un controlador es cargado en memoria toma el control de la CPU, que puede devolver a la aplicación anterior en cualquier momento. Los controladores cargados en memoria pueden elegir si persisten o no según el código de finalización que devuelva su imagen. Si la aplicación es la que inicia el sistema operativo, tendrá que hacer esto mediante la interfaz que ofrece UEFI hasta que, usando la primitiva `EFI_BOOT_SERVICES.ExitBootServices()`, detiene todas las demás aplicaciones implicadas en el arranque y adquiere el control completo de la máquina [@UEFIspec sección 2.1].
 
 ### GUID Partition Table {#gpt}
-<!-- Qué es y qué ventajas tiene sobre MBR -->
+
+Conocido como GPT, *GUID Partition Table* es un formato de tabla de particiones desarrollado por Intel para ser usado con EFI [@ibmGPT]. En el primer bloque lógico del disco se encuentra una estructura compatible con *Master Boot Record* para evitar que el disco sea interpretado erróneamente como vacío por *software* no compatible con GPT. A continuación se encuentra la tabla de particiones primaria, cada una con punteros a los bloques lógicos inicial y final de cada una de las hasta 128 particiones (por defecto) que admite GPT. Al final del disco se encuentra una copia de la tabla de particiones, de forma que si la primera es dañada puede recuperarse. [@UEFIspec sección 5.3]
+
+Una de las novedades con más consecuencias respecto a *Master Boot Record* es el uso de punteros de 64 bits hacia los bloques lógicos, permitiendo el acceso completo a discos de 8 ZB (zettabytes) con 512 bytes como tamaño de bloque. Además, GPT incluye redundancia de datos sobre las particiones de un disco cuyo error no sería reparable (como la tabla de particiones) y sumas de verificación CRC32, no requiere el uso de particiones lógicas al permitir 128 particiones por defecto (además, el tamaño de la tabla de particiones es ampliable), utiliza 16 bytes para identificar las particiones reduciendo así la probabilidad de colisión de identificadores común en MBR (donde se usaba un byte para lo mismo) y permite la asignación de etiquetas a las particiones de forma independiente a las que use el sistema operativo (estas últimas no podrían ser usadas por otro sistema operativo o por cualquier producto *software* que trabaje fuera de un sistema operativo, como puede ser un programa de gestión de particiones tipo *gparted*) [@ibmGPT] [@UEFIspec sección 5.1].
+
 ## Modificaciones
 <!-- TODO: mencionar su mayor extensibilidad -->
 ## Secure Boot {#secureBoot}
-<!-- Seguridad. [Cómo poner una contraseña y qué hacer si se nos olvida (quitar la pila)] ← ¿Esto es aplicable a UEFI? -->
+
+<!-- TODO: podría añadirse más cosas de seguridad y transformar Secure Boot en una subsubsección -->
+
+*SecureBoot* es un método de validación para el código ejecutado antes del arranque del sistema operativo. Para ello usa una base de datos de certificados digitales que coteja con los certificados que incluye cada sección del código de aplicaciones y controladores UEFI que esté a punto de ejecutar en cada momento, de forma que, en caso de discrepancia, el sistema puede omitir la ejecución del código afectado o notificar al usuario [@UEFIspec sección 30] [@secureBoot]. La propia base de datos de certificados digitales está cifrada con un par de claves pública/primaria, de forma que el conocimiento de la privada es necesario para poder modificarla.
+
+Esta característica es opcional en la especificación UEFI y puede ser desactivada por el administrador de la máquina.
 
 <!--
 TODO:
