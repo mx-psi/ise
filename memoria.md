@@ -82,7 +82,7 @@ Dado que BIOS es un estándar *de facto* existen variaciones entre empresas y mo
 
 El funcionamiento general de la BIOS se basa en la interacción con las interrupciones *hardware* que proveen los procesadores Intel. Una interrupción es una señal del procesador que indica un evento que debe ser atendido inmediatamente. La CPU entonces interrumpe su ejecución y transfiere la ejecución a una localización fija[@abraham2013operating Sección 1.2.1]. Las interrupciones pueden provenir del procesador del hardware, del software o del usuario. En los sistemas con BIOS una serie de interrupciones estaban reservadas para ésta[@phoenix1989system pp. 35-36].
 
-## El proceso de arranque
+## El proceso de arranque {#arranqueBIOS}
 
 Aunque existen diferencias en función de la implementación o el tipo de BIOS el proceso de arranque en ordenadores compatibles con IBM sigue en términos generales los siguientes pasos[@abraham2013operating Sección 2.10]:
 
@@ -151,7 +151,7 @@ El diseño de la BIOS no está estandarizado en su totalidad lo que provoca prob
 
 - El Master Boot Record sólo permite 4 particiones primarias [@tldpPartitions] y, para un tamaño de bloque de 512 bytes, permite un tamaño máximo de partición de 2 TB, insuficiente para muchos dispositivos actuales[@ibmGPT].
 - Es dependiente de la arquitectura *hardware* subyacente como la CPU: estaba basada en 16 bits cuando la arquitectura actual es de 64 bits y en el uso de interrupciones, lo que limita el diseño del *hardware*.
-- Las ROMs opcionales tienen un tamaño limitado que impide la compatibilidad con algunos dispositivos inicializables en servidores.
+- Las ROMs opcionales están escritas en código ensamblador de 16 bits que asume una arquitectura tipo PC-AT [@UEFIspec sección 2.5.1]. Esto limita su tamaño a 1 MB e impide la compatibilidad con algunos dispositivos inicializables en servidores.
 - La mayor parte de las implementaciones no tienen un diseño modular lo que dificulta la reutilización del código.
 
 
@@ -164,7 +164,13 @@ Las BIOS más recientes (como por ejemplo las de los ordenadores de HP) disponen
 
 # UEFI {#uefi}
 
-UEFI es una especificación de interfaz entre el *firmware* y el sistema operativo o cualquier otro tipo de aplicación que se ejecute prescindiendo de un sistema operativo anfitrión [@UEFIDell]. <!-- TODO: ¿extender? Puede no ser necesario extender si el resto de secciones explican todo en suficiente detalle -->
+UEFI es una especificación de interfaz entre el *firmware* y el sistema operativo o cualquier otro tipo de aplicación que se ejecute prescindiendo de un sistema operativo anfitrión [@UEFIDell]. [En contraste con BIOS](#arranqueBIOS), no es un programa que ejecuta lo necesario para que arranque el sistema operativo. El arranque se gestiona a través de aplicaciones que se llaman entre ellas como se detalla en la sección de [arranque en UEFI](#arranqueUEFI).
+
+La especificación UEFI incluye tablas de datos y una API con métodos disponibles para el sistema operativo y las aplicaciones y controladores que se ejecutan antes de la carga de este. Los dispositivos pueden incluir, en su propia memoria o a través de fuentes externas, sus propios controladores escritos en C [@UEFIspec sección 2.5.1], de forma que puedan funcionar bajo UEFI en cualquier arquitectura.
+
+<!-- TODO: ¿extender? Puede no ser necesario extender si el resto de secciones explican todo en suficiente detalle -->
+
+<!-- TODO: probablemente deberían mencionarse la EFI System Table (sección 4) y los servicios boot y runtime (secciones 6 y 7 respectivamente) -->
 
 ## Transición {#BIOSaUEFI}
 
@@ -172,10 +178,10 @@ El estándar UEFI cubre las [limitaciones de BIOS](#limitaciones) [@UEFIDell]:
 
 - UEFI no requiere un tipo particular de tabla de particiones para ejecutar un sistema operativo, dado que, en lugar de esperar un formato *Master Boot Record* y leer los primeros sectores disponibles, el sistema operativo se carga a través de una aplicación UEFI. Esto permite a los sistemas operativos cargados desde UEFI usar otro tipo de tablas de particiones más extensible, como [GUID Partition Table](#gpt), descrito más adelante en su sección correspondiente.
 - UEFI se basa en el uso de protocolos e interfaces de aplicación. Esto permite sustituir las interrupciones *hardware* que requiere BIOS y que dependen completamente del *hardware*.
-- Las aplicaciones UEFI que son ejecutadas pueden estar en memorias de cualquier tipo, de forma que el almacenamiento no supone un problema de compatibilidad. <!-- TODO: esto requiere una fuente alternativa; en UEFIDell solo dice que es muy extensible, pero no cómo -->
+- Los controladores UEFI, al igual que las aplicaciones UEFI, pueden estar en memorias de cualquier tipo (en el *firmware*, en unidades de almacenamiento masivo o en la memoria interna de una tarjeta PCI) y están escritos en C, de forma que son compatibles con distintas arquitecturas de 32 y 64 bits y se elimina la limitación de 1 MB de tamaño para las ROM opcionales.
 - Al descomponer la rutina de inicio en aplicaciones UEFI, el código puede modularizarse sin trabas.
 
-Todo ello, junto con la posibilidad que ofrece UEFI de desarrollar un entorno previo al arranque independiente del sistema operativo y la inclusión de [Secure Boot](#secureBoot) a partir de la versión 2.2, ha supuesto la imposición de UEFI en el mercado. La no compatibilidad de los sistemas operativos con UEFI durante los inicios de este no supuso un problema dado que UEFI dispone del *Compatibility Support Module*, CSM, que permite la carga bajo UEFI de sistemas operativos no adaptados a UEFI. <!-- TODO: hay más ventajas de UEFI que no son una respuesta directa a las limitaciones de BIOS, en particular la mayor facilidad de modificación. Si se pone algo de esto, enlazar con Modificaciones -->
+Todo ello, junto con la posibilidad que ofrece UEFI de desarrollar un entorno previo al arranque independiente del sistema operativo, la portabilidad de las aplicaciones y ROMs opcionales y la inclusión de [Secure Boot](#secureBoot) a partir de la versión 2.2, ha supuesto la imposición de UEFI en el mercado. La no compatibilidad de los sistemas operativos con UEFI durante los inicios de este no supuso un problema dado que UEFI dispone del *Compatibility Support Module*, CSM, que permite la carga bajo UEFI de sistemas operativos no adaptados a UEFI. <!-- TODO: hay más ventajas de UEFI que no son una respuesta directa a las limitaciones de BIOS -->
 
 ## El estándar
 
@@ -185,11 +191,11 @@ Desde su *adopción* en 2005, el *UEFI Forum* se encarga de continuar con el des
 
 La última versión del estándar es la 2.6 errata A, que puede consultarse en [@UEFIspec].
 
-## El arranque en UEFI
+## El arranque en UEFI {#arranqueUEFI}
 
 A diferencia de lo que ocurre en BIOS, UEFI gestiona el arranque mediante una aplicación, ***Boot Manager***, que efectúa las rutinas equivalentes a las que ejecuta [BIOS](#bios) usando la interfaz proporcionada por UEFI [@UEFIDell].
 
-El *Boot Manager* es la aplicación UEFI que se ejecuta inmediatamente después de la inicialización del *firmware* pertinente. Se encarga de ejecutar el código de los controladores y aplicaciones UEFI (estas últimas pueden incluir una aplicación que cargue un sistema operativo) en el orden definido por una variable global situada en una memoria no volátil que almacena una lista de variables también en memoria no volátil, cada una con, entre otros elementos, un puntero al dispositivo hardware implicado, un puntero a la imagen UEFI que contiene el código que debe ser ejecutado y un nombre que permite identificar el controlador o aplicación [@UEFIspec sección 3]. Estas variables permiten presentar una lista de posibles sistemas operativos que pueden ejecutarse desde el *firmware* del sistema, sin que previamente sea necesario comenzar a leer desde el dispositivo de almacenamiento que más prioridad tenga.
+El *Boot Manager* es la aplicación UEFI que se ejecuta inmediatamente después de la inicialización del *firmware* pertinente. Se encarga de ejecutar el código de los controladores y aplicaciones UEFI (estas últimas pueden incluir una aplicación que cargue un sistema operativo) en el orden definido por una variable global situada en una memoria no volátil que almacena una lista de variables también en memoria no volátil, cada una con, entre otros elementos, un puntero al dispositivo hardware implicado, un puntero a la imagen UEFI que contiene el código objeto en formato [EBC](#ebc) que debe ser ejecutado y un nombre que permite identificar el controlador o aplicación [@UEFIspec sección 3]. Estas variables permiten presentar una lista de posibles sistemas operativos que pueden ejecutarse desde el *firmware* del sistema, sin que previamente sea necesario comenzar a leer desde el dispositivo de almacenamiento que más prioridad tenga.
 
 Tanto el *Boot Manager* como otras aplicaciones pueden ejecutar aplicaciones UEFI. Una vez que el código de una aplicación UEFI o de un controlador es cargado en memoria toma el control de la CPU, que puede devolver a la aplicación anterior en cualquier momento. Los controladores cargados en memoria pueden elegir si persisten o no según el código de finalización que devuelva su imagen. Si la aplicación es la que inicia el sistema operativo, tendrá que hacer esto mediante la interfaz que ofrece UEFI hasta que, usando la primitiva `EFI_BOOT_SERVICES.ExitBootServices()`, detiene todas las demás aplicaciones implicadas en el arranque y adquiere el control completo de la máquina [@UEFIspec sección 2.1].
 
@@ -200,14 +206,36 @@ Conocido como GPT, *GUID Partition Table* es un formato de tabla de particiones 
 Una de las novedades con más consecuencias respecto a *Master Boot Record* es el uso de punteros de 64 bits hacia los bloques lógicos, permitiendo el acceso completo a discos de 8 ZB (zettabytes) con 512 bytes como tamaño de bloque. Además, GPT incluye redundancia de datos sobre las particiones de un disco cuyo error no sería reparable (como la tabla de particiones) y sumas de verificación CRC32, no requiere el uso de particiones lógicas al permitir 128 particiones por defecto (además, el tamaño de la tabla de particiones es ampliable), utiliza 16 bytes para identificar las particiones reduciendo así la probabilidad de colisión de identificadores común en MBR (donde se usaba un byte para lo mismo) y permite la asignación de etiquetas a las particiones de forma independiente a las que use el sistema operativo (estas últimas no podrían ser usadas por otro sistema operativo o por cualquier producto *software* que trabaje fuera de un sistema operativo, como puede ser un programa de gestión de particiones tipo *gparted*) [@ibmGPT] [@UEFIspec sección 5.1].
 
 ## Modificaciones
-<!-- TODO: mencionar su mayor extensibilidad -->
-## Secure Boot {#secureBoot}
 
-<!-- TODO: podría añadirse más cosas de seguridad y transformar Secure Boot en una subsubsección -->
+En UEFI los controladores de los dispositivos se cargan como las aplicaciones UEFI, por lo que el concepto de *ROM opcional* aplicado a estos suele ser sustituido por el de *controladores UEFI* [@UEFIDell]. Sí conservan su nombre las ROM opcionales que hacen referencia a funcionalidades adicionales no relacionadas con la compatibilidad con dispositivos. En ambos casos, el código que ejecutan puede situarse en cualquier lugar que sea accesible desde el sistema (incluida la red local) y ser accedido en el momento del arranque que se desee modificando convenientemente las variables del *Boot Manager*.
+
+### Modelo de controladores UEFI
+
+UEFI usa un modelo de controladores con el objetivo de, según se describe en [@UEFIspec sección 2.5], facilitar y estandarizar el diseño y la implementación de los controladores y reducir el tamaño de las imágenes UEFI. A cambio se incrementa la complejidad de los controladores: deben ofrecer un protocolo de manejo de su dispositivo que garantice la abstracción de las operaciones que efectúa.
+
+El modelo de controladores UEFI exige que los controladores estén escritos en C, garantizando la portabilidad de estos; facilita la relación entre el dispositivo y sus controladores (algunas ROM opcionales para BIOS pueden explorar todos los dispositivos del sistema hasta que encuentran el dispositivo con el que se corresponden) y permite ejecutar únicamente los controladores de los dispositivos requeridos para la ejecución del sistema operativo [@UEFIspec sección 2.5.1.3].
+
+### *EFI Byte Code* {#ebc}
+
+El procesador virtual de EFI Byte Code (EBC) permite disponer de un código objeto en formato EBC que puede utilizarse en distintos entornos *hardware* [@UEFIspec sección 21.1]. El estándar exige que el *firmware* compatible con UEFI pueda compilar desde C, enlazar e interpretar código objeto en formato EBC (y, por supuesto, describe cómo se pueden implementar estas funcionalidades dedicando para ello el capítulo 21).
+
+### *Human Interface Infrastructure*
+
+<!-- TODO: ver secciones 31~33 de la especificación UEFI (esta sección es la que incluye cómo se accede a la configuración) -->
+
+## Seguridad
+
+### Actualización de *firmware*
+
+El mantenimiento y actualización del *firmware* es un factor imprescindible para la seguridad del sistema. UEFI considera un protocolo de administración de *firmware* que facilita su actualización (o su reversión, según considere el operario) y la comprobación de la versión actual del mismo.
+
+### Secure Boot {#secureBoot}
 
 *SecureBoot* es un método de validación para el código ejecutado antes del arranque del sistema operativo. Para ello usa una base de datos de certificados digitales que coteja con los certificados que incluye cada sección del código de aplicaciones y controladores UEFI que esté a punto de ejecutar en cada momento, de forma que, en caso de discrepancia, el sistema puede omitir la ejecución del código afectado o notificar al usuario [@UEFIspec sección 30] [@secureBoot]. La propia base de datos de certificados digitales está cifrada con un par de claves pública/primaria, de forma que el conocimiento de la privada es necesario para poder modificarla.
 
 Esta característica es opcional en la especificación UEFI y puede ser desactivada por el administrador de la máquina.
+
+<!-- TODO: tal vez se pueden hacer más subsecciones de seguridad. ¿User Identification (sección 34 en las especificaciones UEFI)? ¿Secure Technologies (sección 35)? -->
 
 <!--
 TODO:
