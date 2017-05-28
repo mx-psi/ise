@@ -64,9 +64,11 @@ Describimos la estructura y el funcionamiento de la BIOS en [la sección posteri
 
 ## La llegada de UEFI
 
-Intel trató de desarrollar una alternativa a BIOS para su familia de procesadores Itanium, que al ser de 64 bits se verían especialmente [limitados por BIOS](#limitaciones), en el programa *Intel Boot Initiative*[@intelEFIandUEFI], que dio lugar a una nueva interfaz entre el firmware y el sistema operativo: la especificación *Extensible Firmware Interface* (EFI). La versión 1.10 de EFI, que terminó siendo la última desarrollada por Intel, fue publicada en 2002 [@secureBoot].
+Intel trató de desarrollar una alternativa a BIOS para su familia de procesadores Itanium, que al ser de 64 bits se verían especialmente [limitados por BIOS](#limitaciones), en el programa *Intel Boot Initiative*[@intelEFIandUEFI], que dio lugar a una nueva interfaz entre el *firmware* y el sistema operativo: la especificación *Extensible Firmware Interface* (EFI). La versión 1.10 de EFI, que terminó siendo la última desarrollada por Intel, fue publicada en 2002 [@secureBoot].
 
-Tres años después se formó el *Unified EFI Forum*, una organización sin ánimo de lucro formada por miembros de empresas tecnológicas punteras en la época que retomó el desarrollo de la especificación EFI, renombrándola a UEFI, y trató de implementarla y hacer de UEFI un estándar para las interfaces de firmware [@UEFIDell] [@intelEFIandUEFI].
+Tres años después se formó el *Unified EFI Forum*, una organización sin ánimo de lucro formada por miembros de empresas tecnológicas punteras en la época que retomó el desarrollo de la especificación EFI, renombrándola a UEFI, y trató de implementarla y hacer de UEFI un estándar para las interfaces de *firmware* [@UEFIDell] [@intelEFIandUEFI].
+
+<!-- TODO: puede mencionarse aquí la fecha en la que se introdujeron novedades importantes en UEFI y enlazar con su sección correspondiente en UEFI si la tienen -->
 
 UEFI fue adoptado rápidamente en el mercado [@aTaleOfTwoStandards] por [sus numerosas ventajas respecto a BIOS](#BIOSaUEFI). La especificación UEFI se describe en [su sección correspondiente](#uefi).
 
@@ -150,7 +152,7 @@ El diseño de la BIOS no está estandarizado en su totalidad lo que provoca prob
 - El Master Boot Record sólo permite 4 particiones primarias y permite un tamaño máximo de 2 TB, insuficiente para muchos dispositivos actuales[@tldpPartitions].
 - Es dependiente de la arquitectura *hardware* subyacente como la CPU: estaba basada en 16 bits cuando la arquitectura actual es de 64 bits y en el uso de interrupciones, lo que limita el diseño del *hardware*.
 - Las ROMs opcionales tienen un tamaño limitado que impide la compatibilidad con algunos dispositivos inicializables en servidores.
-- La mayor parte de las implementaciones no tienen un diseño modular lo que dificulta la reutilización del código
+- La mayor parte de las implementaciones no tienen un diseño modular lo que dificulta la reutilización del código.
 
 
 ## Seguridad {#seguridad-bios}
@@ -162,18 +164,35 @@ Las BIOS más recientes (como por ejemplo las de los ordenadores de HP) disponen
 
 # UEFI {#uefi}
 
+UEFI es una especificación de interfaz entre el *firmware* y el sistema operativo o cualquier otro tipo de aplicación que se ejecute prescindiendo de un sistema operativo anfitrión [@UEFIDell]. <!-- TODO: ¿extender? Puede no ser necesario extender si el resto de secciones explican todo en suficiente detalle -->
+
 ## Transición {#BIOSaUEFI}
-<!--Por qué hemos pasado de BIOS a UEFI-->
+
+El estándar UEFI cubre las [limitaciones de BIOS](#limitaciones) [@UEFIDell]:
+
+- UEFI no requiere un tipo particular de tabla de particiones para ejecutar un sistema operativo, dado que, en lugar de esperar un formato *Master Boot Record* y leer los primeros sectores disponibles, el sistema operativo se carga a través de una aplicación UEFI. Esto permite a los sistemas operativos cargados desde UEFI usar otro tipo de tablas de particiones más extensible, como [GUID Partition Table](#gpt), descrito más adelante en su sección correspondiente.
+- UEFI se basa en el uso de protocolos e interfaces de aplicación. Esto permite sustituir las interrupciones *hardware* que requiere BIOS y que dependen completamente del *hardware*.
+- Las aplicaciones UEFI que son ejecutadas pueden estar en memorias de cualquier tipo, de forma que el almacenamiento no supone un problema de compatibilidad. <!-- TODO: esto requiere una fuente alternativa; en UEFIDell solo dice que es muy extensible, pero no cómo -->
+- Al descomponer la rutina de inicio en aplicaciones UEFI, el código puede modularizarse sin trabas.
+
+Todo ello, junto con la posibilidad que ofrece UEFI de desarrollar un entorno previo al arranque independiente del sistema operativo y la inclusión de [Secure Boot](#secureBoot) a partir de la versión 2.2, ha supuesto la imposición de UEFI en el mercado. <!-- TODO: hay más ventajas de UEFI que no son una respuesta directa a las limitaciones de BIOS, en particular la mayor facilidad de modificación. Si se pone algo de esto, enlazar con Modificaciones -->
+
 ## El estándar
 <!--Quién lo define y donde está-->
 ## El arranque en UEFI
-<!-- TODO -->
-### GUID Partition Table
+
+A diferencia de lo que ocurre en BIOS, UEFI gestiona el arranque mediante una aplicación, ***Boot Manager***, que efectúa las rutinas equivalentes a las que ejecuta [BIOS](#bios) usando la interfaz proporcionada por UEFI [@UEFIDell].
+
+El *Boot Manager* es la aplicación UEFI que se ejecuta inmediatamente después de la inicialización del *firmware* pertinente. Se encarga de ejecutar el código de los controladores y aplicaciones UEFI (estas últimas pueden incluir una aplicación que cargue un sistema operativo) en el orden definido por una variable global situada en una memoria no volátil que almacena una lista de variables también en memoria no volátil, cada una con, entre otros elementos, un puntero al dispositivo hardware implicado, un puntero a la imagen UEFI que contiene el código que debe ser ejecutado y un nombre que permite identificar el controlador o aplicación [@UEFIspec sección 3]. Estas variables permiten presentar una lista de posibles sistemas operativos que pueden ejecutarse desde el *firmware* del sistema, sin que previamente sea necesario comenzar a leer desde el dispositivo de almacenamiento que más prioridad tenga.
+
+Tanto el *Boot Manager* como otras aplicaciones pueden ejecutar aplicaciones UEFI. Una vez que el código de una aplicación UEFI o de un controlador es cargado en memoria toma el control de la CPU, que puede devolver a la aplicación anterior en cualquier momento. Los controladores cargados en memoria pueden elegir si persisten o no según el código de finalización que devuelva su imagen. Si la aplicación es la que inicia el sistema operativo, tendrá que hacer esto mediante la interfaz que ofrece UEFI hasta que, usando la primitiva `EFI_BOOT_SERVICES.ExitBootServices()`, detiene todas las demás aplicaciones implicadas en el arranque y adquiere el control completo de la máquina [@UEFIspec sección 2.1].
+
+### GUID Partition Table {#gpt}
 <!-- Qué es y qué ventajas tiene sobre MBR -->
 ## Modificaciones
 <!-- TODO: mencionar su mayor extensibilidad -->
-## Seguridad
-<!--Cómo poner una contraseña y qué hacer si se nos olvida (quitar la pila) -->
+## Secure Boot {#secureBoot}
+<!-- Seguridad. [Cómo poner una contraseña y qué hacer si se nos olvida (quitar la pila)] ← ¿Esto es aplicable a UEFI? -->
 
 <!--
 TODO:
