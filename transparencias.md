@@ -1,9 +1,6 @@
 ---
 title: UEFI vs BIOS
 subtitle: Ingeniería de Servidores
-author: 
-- Pablo Baeyens
-- José Manuel Muñoz
 date: Universidad de Granada
 lang: es
 theme: Frankfurt
@@ -11,11 +8,6 @@ colortheme: beaver
 header-includes:
  - \usepackage[labelformat=empty]{caption}
 colorlinks: true
-# Otras opciones
-#themeoptions:
-#fonttheme:
-#innertheme:
-#outertheme:
 ---
 
 # El inicio de los gestores de arranque
@@ -25,8 +17,6 @@ colorlinks: true
 # La memoria ROM
 
 La primera BIOS apareció en el sistema **CP/M** (1975). Esta parte del software abstraía el *hardware* y gestionaba el arranque de la máquina.
-
-. . .
 
 El uso de la memoria ROM permitió establecer una localización fija para el código inicial del gestor de arranque. El procesador toma a primera instrucción de `FFFFFFF0H` (en la ROM).
 
@@ -65,8 +55,6 @@ Del inglés *Master Boot Record*. El proceso:
 - Si hay: se comprueban sus particiones
 - Si no hay: fallo/BASIC/arranque por red
 
-. . .
-
 Si se inicia desde disco:
 
 - Cada disco puede tener **4 particiones primarias**
@@ -79,3 +67,27 @@ Si se inicia desde disco:
 - Depende del *hardware*: arquitectura de 16 bits
 - Tamaño limitado de modificaciones
 - No tiene un diseño modular
+
+# UEFI
+
+UEFI es el estándar utilizado en la actualidad (desde 2005). **No** es un gestor de arranque: es un conjunto de protocolos sobre el que se escribe el gestor.
+
+No depende del *hardware* y sus modificaciones son más sencillas.
+
+# GPT
+
+Del inglés *GUID Partition Table*. 
+
+- Formato de tabla de particiones de UEFI. 
+- Permite **8 ZB** en comparación con los 2 TB de MBR
+- Incluye redundancia de datos y comprobaciones de consistencia
+
+
+# Innovaciones
+
+- Se utiliza un **modelo de controladores**, escritos en C más flexible que las ROMs opcionales
+- La HII (*Human Interface Infrastructure*) permite unificar la interfaz de usuario
+- Permite **Secure Boot**: un método de validación del código antes del arranque
+
+
+
