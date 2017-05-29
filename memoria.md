@@ -12,7 +12,7 @@ bibliography: citas.bib
 biblio-style: plain
 link-citations: true
 citation-style: estilo.csl
-abstract: "El nacimiento de los sistemas operativos provocó la necesidad de la creación de gestores de arranque: programas que cargan los datos e instrucciones necesarias en memoria para la ejecución del sistema operativo. Se discute la historia de los gestores de arranque y sus distintas versiones, motivando su uso y las tecnologías necesarias para utlizarlo. A continuación se discute la creación y uso de BIOS en los sistemas IBM originales así como en los más recientes, sus características, limitaciones y posibles modificaciones y aspectos de seguridad. Se compara con el sistema unificado UEFI que permite la estandarización de los gestores de arranque y se discuten sus principales características: TODO"
+abstract: "El nacimiento de los sistemas operativos provocó la necesidad de la creación de gestores de arranque: programas que cargan los datos e instrucciones necesarias en memoria para la ejecución del sistema operativo. Se discute la historia de los gestores de arranque y sus distintas versiones, motivando su uso y las tecnologías necesarias para utlizarlo. A continuación se discute la creación y uso de BIOS en los sistemas IBM originales así como en los más recientes, sus características, limitaciones y posibles modificaciones y aspectos de seguridad. Se compara con el sistema unificado UEFI que permite la estandarización de los gestores de arranque y se discuten sus principales características: cómo cubre las limitaciones de BIOS, las diferencias en tanto al diseño, y sus posibles modificaciones. Se describen también las alternativas libres y se discuten los problemas de UEFI. Finalmente se concluye haciendo una descripción a alto nivel de la evolución de los gestores de arranque y de su estado actual."
 ---
 
 <!--
@@ -35,10 +35,9 @@ Con la llegada de los primeros ordenadores comerciales, orientados al cálculo n
 
 En el caso de los microcomputadores orientados al uso doméstico como el Altair 8800b (1975) el programa inicial debía escribirse manualmente utilizando unos interruptores de la parte delantera en un proceso difícil y largo[@freiberger2000fire].
 
-<!--
-TODO: No sé si añadirla pero para la presentación a lo mejor
-![Imagen de un anuncio de Altair8800b. Los interruptores de la parte delantera permitían escribir cada palabra en la memoria interna indicando su estado bit a bit. De [Popular Electronics, 1975](http://www.swtpc.com/mholley/PopularElectronics/Jan1975/PE_Jan1975.htm) ](imgs/altair8800b.png) 
--->
+
+![Imagen de un anuncio de Altair8800b. Los interruptores de la parte delantera permitían escribir cada palabra en la memoria interna indicando su estado bit a bit. Este era un trabajo largo y difícil que motivó la creación de los gestores de arranque. De [Popular Electronics, 1975](http://www.swtpc.com/mholley/PopularElectronics/Jan1975/PE_Jan1975.htm)
+](imgs/altair8800b.png) 
 
 <!-- El primer gestor de arranque-->
 La posterior aparición de los sistemas operativos provocó la necesidad de crear un gestor de arranque que cargara de forma autónoma los datos necesarios para la inicialización, el primero de ellos llamado BIOS (del inglés, *Basic Input/Output System*). El término **BIOS** apareció por primera vez en el sistema operativo CP/M (1975) para designar la capa software que facilitaba la abstracción entre el *hardware* y el sistema operativo[@garykildall]. Este sistema podía ejecutarse sobre el procesador Intel 8080 y soportaba únicamente 64 kB de memoria. El sistema operativo de Microsoft MS-DOS expandió CP/M para añadir nuevas funcionalidades conservando la parte análoga a la BIOS[@abraham2013operating cap. 20, pp.901].
@@ -244,9 +243,28 @@ TODO:
 No he encontrado nada de nada en servidores salvo https://firmware.intel.com/sites/default/files/STTS001%20-%20SF15_STTS001_100f.pdf
 En clase dijo que podíamos hablar de "Firmware de racks que controla y monitoriza el rack y sus componentes (más específico de servidores y CPD [centro de procesamiento de datos ])"
 -->
-# Alternativas libres: libreboot y coreboot
+# Controversia y alternativas libres
+
+La llegada de UEFI permitió la estandarización de los gestores de arranque con posibilidad de modificaciones e independencia de la arquitectura, así como características de seguridad adicionales.
+
+Sin embargo, algunos activistas de derechos digitales como Cory Doctorow y otros activistas de la FSF (del inglés, *Free Software Foundation*) han argumentado que algunas implementaciones de UEFI limitan la capacidad de los usuarios de controlar realmente sus ordenadores. Estos activistas argumentan que características como el *Secure Boot* pueden ser utilizadas para restringir la posibilidad de cambiar el sistema operativo que se está utilizando[@corySpeech] y defienden que debe ofrecerse la posibilidad de desactivar las opciones de seguridad manualmente para respetar la libertad de los usuarios [@FSFRestrictedBoot].
+
+Como alternativa libre algunas comunidades de usuario han desarrollado gestores de arranque que no utilicen *firmware* propietario. El ejemplo más notable de estos es **coreboot**, un sistema escrito en C bajo licencia GNU GPL v2 que permite sustituir a BIOS o UEFI y proveer del mínimo código posible para la inicialización de cualquier sistema operativo moderno. Este sistema puede ejecutar la implementación libre de BIOS SeaBIOS consiguiendo así un sistema completamente libre en el caso de utilizar un sistema operativo libre como los basados en GNU/Linux y puede ser más rápido en la inicialización de servidores[@corebootusers].
+
+Aunque el proyecto es apoyado por la FSF la compatibilidad con el *hardware* es bastante limitada y sólo unos pocos vendedores ofrecen la posibilidad de adquirir un sistema con coreboot o alguna de sus implementaciones concretas, por lo que es utilizado por sólo una pequeña fracción de los usuarios finales[@corebootusers][@FSFFreeBIOS].
 
 # Conclusiones finales
 
-\newpage
+Los primeros ordenadores y sistemas informáticos no contaban con la necesidad de utilizar un gestor de arranque: el programa principal se cargaba manualmente en memoria o por medio de dispositivos externos como disquetes o tarjetas perforadas, y sólo existían mecanismos para modificar la memoria manualmente o limpiarla. 
+
+La llegada de los sistemas operativos y de los ordenadores comerciales motivó la creación de gestores de arranque que se encargaran de inicializar los distintos dispositivos *hardware*, copiar la información necesaria para la inicialización del sistema operativo y, en los primeros casos, servir como capa de abstracción entre el *hardware* y el sistema operativo.
+
+Aunque hubo innovaciones anteriores el mercado quedó liderado inicialmente por IBM con BIOS. Otros vendedores copiaron esta parte del sistema e hicieron ordenadores compatibles con la arquitectura de IBM, lo que provocó que BIOS se convirtiera en un estándar *de facto*. BIOS no contaba con una especificación de la totalidad de sus partes aunque, en general, contaba con distintas etapas en las que se comprobaban en inicializaban los dispositivos, se comprobaban los dispositivos inicializables y se cargaba correctamente el código necesario para transferir la ejecución al sistema operativo o a un *boot loader*.
+
+Sin embargo, BIOS estaba diseñado para una arquitectura fija y contaba con grandes limitaciones: sólo permitía 4 particiones en un disco y discos de hasta 2 TB, dependía de la arquitectura de los ordenadores de IBM y de las interrupciones de Intel y sus modificaciones estaban limitadas en tamaño y estaban escritas en código ensamblador de 16 bits, siendo su modificación un proceso difícil y arcaico.
+
+Estas limitaciones motivaron la creación de un estándar que proveía de una interfaz entre el *firmware* y el sistema operativo: UEFI. A diferencia de BIOS el arranque no es gestionado directamente por UEFI y este cubre las limitaciones de BIOS con respecto a las particiones y la dependencia del *hardware*. Sus modificaciones están escritas en C por lo que son compatibles con las distintas arquitecturas.
+
+Aunque ha recibido algunas críticas por parte de activistas digitales UEFI es en la actualidad el estándar utilizado por la gran mayoría de ordenadores personales y servidores. Algunas alternativas libres como coreboot basadas en la filosofía del software libre proveen la posibilidad de utilizar un sistema 100% libre aunque su compatibilidad con el hardware es limitada.
+
 # Referencias
