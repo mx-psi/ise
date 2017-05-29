@@ -166,7 +166,7 @@ Las BIOS más recientes (como por ejemplo las de los ordenadores de HP) disponen
 
 UEFI es una especificación de interfaz entre el *firmware* y el sistema operativo o cualquier otro tipo de aplicación que se ejecute prescindiendo de un sistema operativo anfitrión [@UEFIDell]. [En contraste con BIOS](#arranqueBIOS), no es un programa que ejecuta lo necesario para que arranque el sistema operativo. El arranque se gestiona a través de aplicaciones que se llaman entre ellas como se detalla en la sección de [arranque en UEFI](#arranqueUEFI).
 
-La especificación UEFI incluye tablas de datos y una API con métodos disponibles para el sistema operativo y las aplicaciones y controladores que se ejecutan antes de la carga de este. Los dispositivos pueden incluir, en su propia memoria o a través de fuentes externas, sus propios controladores escritos en C [@UEFIspec sección 2.5.1], de forma que puedan funcionar bajo UEFI en cualquier arquitectura.
+La especificación UEFI incluye tablas de datos, servicios, protocolos y APIs con métodos disponibles para el sistema operativo y las aplicaciones y controladores que se ejecutan antes de la carga de este. Los dispositivos pueden incluir, en su propia memoria o a través de fuentes externas, sus propios controladores escritos en C [@UEFIspec sección 2.5.1], de forma que puedan funcionar bajo UEFI en cualquier arquitectura.
 
 <!-- TODO: ¿extender? Puede no ser necesario extender si el resto de secciones explican todo en suficiente detalle -->
 
@@ -221,7 +221,9 @@ El procesador virtual de EFI Byte Code (EBC) permite disponer de un código obje
 
 ### *Human Interface Infrastructure*
 
-<!-- TODO: ver secciones 31~33 de la especificación UEFI (esta sección es la que incluye cómo se accede a la configuración) -->
+La configuración de la BIOS y las ROM opcionales disponían de diferentes menús. UEFI ofrece una *Human Interface Infrastructure*, HII, que permite unificar la interfaz de usuario y la lectura de los datos leídos por parte del usuario. La HII gestiona las cadenas de texto, los campos y las imágenes facilitadas por las ROM opcionales y por el menú de configuración del sistema y se encarga de mostrarlos con un formato uniforme, gestionando las fuentes, el manejo de los dispositivos de entrada y salida y la representación  de los campos, permitiendo la configuración del sistema antes y después del arranque del sistema operativo y facilitando la adaptación a distintos idiomas [@UEFIspec sección 31.1].
+
+El estándar establece la existencia de una base de datos para HII que almacena los datos (fuentes, campos, texto e imágenes) de los distintos dispositivos y de un servicio, *Forms Browser*, que interpreta el contenido de la base de datos y prepara una vista de este en la que el usuario puede introducir cambios que serán guardados de forma permanente. El *Forms Browser* puede ser accedido y la configuración puede ser modificada antes del arranque (usando una tecla que varía entre distintos *hardware* e incluso entre distintas versiones del *firmware* de una misma máquina) y desde un programa dentro de un sistema operativo [@UEFIspec sección 31.2.11.1].
 
 ## Seguridad
 
