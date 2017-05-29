@@ -167,9 +167,9 @@ UEFI es una especificación de interfaz entre el *firmware* y el sistema operati
 
 La especificación UEFI incluye tablas de datos, servicios, protocolos y APIs con métodos disponibles para el sistema operativo y las aplicaciones y controladores que se ejecutan antes de la carga de este. Los dispositivos pueden incluir, en su propia memoria o a través de fuentes externas, sus propios controladores escritos en C [@UEFIspec sección 2.5.1], de forma que puedan funcionar bajo UEFI en cualquier arquitectura.
 
-<!-- TODO: ¿extender? Puede no ser necesario extender si el resto de secciones explican todo en suficiente detalle -->
+El estándar incluye servicios de arranque, *boot services*, que son protocolos e interfaces disponibles en el entorno de arranque que dejan de estar accesibles en cuanto un sistema operativo toma el control total; y servicios en tiempo de ejecución, *runtime services*, que son interfaces disponibles en todo momento.
 
-<!-- TODO: probablemente deberían mencionarse la EFI System Table (sección 4) y los servicios boot y runtime (secciones 6 y 7 respectivamente) -->
+<!-- TODO: ¿extender? Puede no ser necesario extender si el resto de secciones explican todo en suficiente detalle -->
 
 ## Transición {#BIOSaUEFI}
 
@@ -182,19 +182,13 @@ El estándar UEFI cubre las [limitaciones de BIOS](#limitaciones) [@UEFIDell]:
 
 Todo ello, junto con la posibilidad que ofrece UEFI de desarrollar un entorno previo al arranque independiente del sistema operativo, la portabilidad de las aplicaciones y ROMs opcionales y la inclusión de [Secure Boot](#secureBoot) a partir de la versión 2.2, ha supuesto la imposición de UEFI en el mercado. La no compatibilidad de los sistemas operativos con UEFI durante los inicios de este no supuso un problema dado que UEFI dispone del *Compatibility Support Module*, CSM, que permite la carga bajo UEFI de sistemas operativos no adaptados a UEFI. <!-- TODO: hay más ventajas de UEFI que no son una respuesta directa a las limitaciones de BIOS -->
 
-## El estándar
-
-<!-- TODO: queda muy corto pero no sé qué más poner -->
-
-Desde su *adopción* en 2005, el *UEFI Forum* se encarga de continuar con el desarrollo del estándar.
-
-La última versión del estándar es la 2.6 errata A, que puede consultarse en [@UEFIspec].
+Desde su *adopción* en 2005, el *UEFI Forum* se encarga de continuar con el desarrollo del estándar. La última versión del estándar es la 2.6 errata A, que puede consultarse en [@UEFIspec].
 
 ## El arranque en UEFI {#arranqueUEFI}
 
 A diferencia de lo que ocurre en BIOS, UEFI gestiona el arranque mediante una aplicación, ***Boot Manager***, que efectúa las rutinas equivalentes a las que ejecuta [BIOS](#bios) usando la interfaz proporcionada por UEFI [@UEFIDell].
 
-El *Boot Manager* es la aplicación UEFI que se ejecuta inmediatamente después de la inicialización del *firmware* pertinente. Se encarga de ejecutar el código de los controladores y aplicaciones UEFI (estas últimas pueden incluir una aplicación que cargue un sistema operativo) en el orden definido por una variable global situada en una memoria no volátil que almacena una lista de variables también en memoria no volátil, cada una con, entre otros elementos, un puntero al dispositivo hardware implicado, un puntero a la imagen UEFI que contiene el código objeto en formato [EBC](#ebc) que debe ser ejecutado y un nombre que permite identificar el controlador o aplicación [@UEFIspec sección 3]. Estas variables permiten presentar una lista de posibles sistemas operativos que pueden ejecutarse desde el *firmware* del sistema, sin que previamente sea necesario comenzar a leer desde el dispositivo de almacenamiento que más prioridad tenga.
+El *Boot Manager* es la aplicación UEFI que se ejecuta inmediatamente después de la inicialización del *firmware* pertinente y de la identificación del usuario (en general UEFI suele asumir un usuario por defecto que no requiere identificación). Se encarga de ejecutar el código de los controladores y aplicaciones UEFI (estas últimas pueden incluir una aplicación que cargue un sistema operativo) en el orden definido por una variable global situada en una memoria no volátil que almacena una lista de variables también en memoria no volátil, cada una con, entre otros elementos, un puntero al dispositivo hardware implicado, un puntero a la imagen UEFI que contiene el código objeto en formato [EBC](#ebc) que debe ser ejecutado y un nombre que permite identificar el controlador o aplicación [@UEFIspec sección 3]. Estas variables permiten presentar una lista de posibles sistemas operativos que pueden ejecutarse desde el *firmware* del sistema, sin que previamente sea necesario comenzar a leer desde el dispositivo de almacenamiento que más prioridad tenga.
 
 Tanto el *Boot Manager* como otras aplicaciones pueden ejecutar aplicaciones UEFI. Una vez que el código de una aplicación UEFI o de un controlador es cargado en memoria toma el control de la CPU, que puede devolver a la aplicación anterior en cualquier momento. Los controladores cargados en memoria pueden elegir si persisten o no según el código de finalización que devuelva su imagen. Si la aplicación es la que inicia el sistema operativo, tendrá que hacer esto mediante la interfaz que ofrece UEFI hasta que, usando la primitiva `EFI_BOOT_SERVICES.ExitBootServices()`, detiene todas las demás aplicaciones implicadas en el arranque y adquiere el control completo de la máquina [@UEFIspec sección 2.1].
 
@@ -225,6 +219,12 @@ La configuración de la BIOS y las ROM opcionales disponían de diferentes menú
 El estándar establece la existencia de una base de datos para HII que almacena los datos (fuentes, campos, texto e imágenes) de los distintos dispositivos y de un servicio, *Forms Browser*, que interpreta el contenido de la base de datos y prepara una vista de este en la que el usuario puede introducir cambios que serán guardados de forma permanente. El *Forms Browser* puede ser accedido y la configuración puede ser modificada antes del arranque (usando una tecla que varía entre distintos *hardware* e incluso entre distintas versiones del *firmware* de una misma máquina) y desde un programa dentro de un sistema operativo [@UEFIspec sección 31.2.11.1].
 
 ## Seguridad
+
+### Identificación
+
+El estándar UEFI establece un protocolo de autentificación de usuarios, a los que se les puede asignar un perfil con identificador, métodos de autentificación (contraseña, tarjeta inteligente, token de seguridad, huella digital o cualquier combinación lógica, usando los operadores AND y OR, de estos, por lo que se puede hacer que un usuario requiera identificación en dos pasos o que se pueda identificar con uno u otro método según considere), información y permisos (por ejemplo, si puede añadir otros usuarios o si puede arrancar desde cierto dispositivo) [@UEFIspec sección 34.1]. UEFI ofrece una función, `Identify()`, con la que se puede cambiar el perfil de usuario en diversos momentos del arranque y dentro de las aplicaciones UEFI que lo requieran.
+
+El estándar UEFI obliga a la base de datos de usuarios a ser alojada en ``memoria no volátil que debe estar protegida contra corrupción y borrado'' [@UEFIspec sección 34.1.2.1]. Al considerarse no volátil la memoria CMOS (no se borra mientras se mantenga la pila), quitar la pila de la placa base puede bastar para obtener acceso a elementos protegidos por credenciales.
 
 ### Actualización de *firmware*
 
